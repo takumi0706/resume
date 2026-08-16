@@ -1,0 +1,142 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /2026
+        - img "Hono Conference" [ref=e8]
+      - generic [ref=e11]:
+        - button "JA" [ref=e12] [cursor=pointer]
+        - paragraph [ref=e13]: "|"
+        - button "EN" [ref=e14] [cursor=pointer]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e19]:
+        - heading "Hono Conference in Tokyo 2026" [level=1] [ref=e20]:
+          - generic [ref=e21]: Hono Conference
+          - text: in Tokyo 2026
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: 2026.10.11[SUN]
+          - paragraph [ref=e24]: LINEヤフー 紀尾井町オフィス
+      - generic [ref=e25]:
+        - heading "What is HonoConf?" [level=2] [ref=e26]
+        - paragraph [ref=e29]: Hono Conferenceは、Webフレームワーク「Hono」のコントリビューターとユーザーによるカンファレンスです。2024年に初めて開催され、今年は3度目の開催となります。
+      - generic [ref=e30]:
+        - heading "Sponsors" [level=2] [ref=e31]
+        - paragraph [ref=e35]: HonoConf 2026のスポンサー募集は8月7日をもって締め切りました。スポンサー企業の掲載まで今しばらくお待ちください。
+      - generic [ref=e36]:
+        - heading "Call for Proposals" [level=2] [ref=e37]
+        - generic [ref=e39]:
+          - paragraph [ref=e41]: 現在、HonoConf 2026での発表プロポーザルを募集しています。ご興味のある方は、以下のフォームよりお申し込みください。
+          - generic [ref=e42]:
+            - link "プロポーザル応募フォーム" [ref=e43] [cursor=pointer]:
+              - /url: https://fortee.jp/honoconf-2026/speaker/proposal/cfp
+            - link "プライバシーポリシーはこちら" [ref=e44] [cursor=pointer]:
+              - /url: /2026/privacy-policy
+      - generic [ref=e45]:
+        - heading "Organizers" [level=2] [ref=e46]
+        - generic [ref=e48]:
+          - link [ref=e49] [cursor=pointer]:
+            - /url: https://honoconf.dev
+            - img "HonoConf" [ref=e51]
+          - link [ref=e52] [cursor=pointer]:
+            - /url: https://gemcook.com
+            - img "Gemcook" [ref=e54]
+      - generic [ref=e55]:
+        - heading "Team" [level=2] [ref=e56]
+        - generic [ref=e58]:
+          - link [ref=e59] [cursor=pointer]:
+            - /url: https://x.com/1ye_q
+            - img "Takumi" [ref=e61]
+            - paragraph [ref=e62]: Takumi
+          - link [ref=e63] [cursor=pointer]:
+            - /url: https://twitter.com/tsuy_uni
+            - img "tsuyuni" [ref=e65]
+            - paragraph [ref=e66]: tsuyuni
+          - link [ref=e67] [cursor=pointer]:
+            - /url: https://x.com/r5ni4?s=21
+            - img "R-524" [ref=e69]
+            - paragraph [ref=e70]: R-524
+          - link [ref=e71] [cursor=pointer]:
+            - /url: https://x.com/sushichan044
+            - img "sushichan044" [ref=e73]
+            - paragraph [ref=e74]: sushichan044
+          - link [ref=e75] [cursor=pointer]:
+            - /url: https://x.com/sosomuse
+            - img "soso" [ref=e77]
+            - paragraph [ref=e78]: soso
+          - link [ref=e79] [cursor=pointer]:
+            - /url: https://x.com/yozure5
+            - img "yozure" [ref=e81]
+            - paragraph [ref=e82]: yozure
+          - link [ref=e83] [cursor=pointer]:
+            - /url: https://x.com/asahiXXXXXXXXX
+            - img "あさひ" [ref=e85]
+            - paragraph [ref=e86]: あさひ
+          - link [ref=e87] [cursor=pointer]:
+            - /url: https://x.com/hiraisoko_rai
+            - img "らい" [ref=e89]
+            - paragraph [ref=e90]: らい
+          - link [ref=e91] [cursor=pointer]:
+            - /url: https://x.com/kajitack
+            - img "kajitack" [ref=e93]
+            - paragraph [ref=e94]: kajitack
+          - link [ref=e95] [cursor=pointer]:
+            - /url: https://x.com/Kamuri_96
+            - img "かむり" [ref=e97]
+            - paragraph [ref=e98]: かむり
+          - link [ref=e99] [cursor=pointer]:
+            - /url: https://x.com/honchang_
+            - img "honchang" [ref=e101]
+            - paragraph [ref=e102]: honchang
+          - link [ref=e103] [cursor=pointer]:
+            - /url: https://x.com/Yuhei_FUJITA
+            - img "Y10A" [ref=e105]
+            - paragraph [ref=e106]: Y10A
+          - link [ref=e107] [cursor=pointer]:
+            - /url: https://x.com/mei_999_
+            - img "めい" [ref=e109]
+            - paragraph [ref=e110]: めい
+          - link [ref=e111] [cursor=pointer]:
+            - /url: https://x.com/tanahiro2010
+            - img "tanahiro2010" [ref=e113]
+            - paragraph [ref=e114]: tanahiro2010
+    - link [ref=e116] [cursor=pointer]:
+      - /url: https://hono.connpass.com/event/401554
+      - img "connpass" [ref=e118]
+      - paragraph [ref=e119]: 参加登録はこちら
+  - contentinfo [ref=e120]:
+    - generic [ref=e121]:
+      - generic [ref=e122]:
+        - generic [ref=e123]:
+          - img "Hono Conference" [ref=e125]
+          - generic [ref=e126]:
+            - paragraph [ref=e127]: Hono Conference in Tokyo 2026
+            - paragraph [ref=e128]: October 11, 2026
+            - paragraph [ref=e129]: LY Corporation Kioicho Office 17F
+        - list [ref=e130]:
+          - listitem [ref=e131]:
+            - link "Hono Conference 2026" [ref=e132] [cursor=pointer]:
+              - /url: /2026
+          - listitem [ref=e133]:
+            - link "Hono Conference 2025" [ref=e134] [cursor=pointer]:
+              - /url: /2025
+        - list [ref=e135]:
+          - listitem [ref=e136]:
+            - link "アクセス" [ref=e137] [cursor=pointer]:
+              - /url: /2026/access
+          - listitem [ref=e138]:
+            - link "行動規範" [ref=e139] [cursor=pointer]:
+              - /url: /2026/code-of-conduct
+          - listitem [ref=e140]:
+            - link "プライバシーポリシー" [ref=e141] [cursor=pointer]:
+              - /url: /2026/privacy-policy
+          - listitem [ref=e142]:
+            - link "スポンサーキャンセルポリシー" [ref=e143] [cursor=pointer]:
+              - /url: /2026/sponsor-cancellation-policy
+        - generic [ref=e144]:
+          - link "X" [ref=e145] [cursor=pointer]:
+            - /url: https://x.com/honoconf
+          - link "connpass" [ref=e148] [cursor=pointer]:
+            - /url: https://hono.connpass.com
+            - img "connpass" [ref=e150]
+      - generic [ref=e151]: © 2026 HonoConf All Rights Reserved.

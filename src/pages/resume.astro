@@ -1,0 +1,290 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "@layouts/Base.astro";
+
+// 02 · Long Document
+// 仕切りは余白。罫線を引かない（トップページの太罫と対照させる）。
+// 見出しは本文の流れから立ち上がる短い語句。CTA は段落のなかのテキストリンク。
+
+const byDescending = (a: string, b: string): number => b.localeCompare(a);
+
+const jpMonth = (yearMonth: string): string => {
+  const [year, month] = yearMonth.split("-");
+  return `${year}年${Number(month)}月`;
+};
+
+const period = (start: string, end: string | null): string =>
+  `${jpMonth(start)} — ${end === null ? "現在" : jpMonth(end)}`;
+
+const work = await getCollection("work");
+const education = await getCollection("education");
+const awards = await getCollection("awards");
+const community = await getCollection("community");
+
+const workSections = await Promise.all(
+  work
+    .sort((a, b) => byDescending(a.data.start, b.data.start))
+    .map(async (entry) => ({
+      data: entry.data,
+      Content: (await render(entry)).Content,
+    })),
+);
+
+const schools = education.sort((a, b) => byDescending(a.data.start, b.data.start));
+const honours = awards.sort((a, b) => byDescending(a.data.date, b.data.date));
+const communityCount = community.length;
+---
+
+<Base
+  title="職務経歴書 — 小山田 卓生"
+  description="小山田卓生（@takumi0706）の職務経歴書。LINEヤフー株式会社のソフトウェアエンジニア。サーバーサイド開発とデータ基盤、AI・LLM の組み込み。"
+>
+  <article class="doc">
+    <div class="shell">
+      <h1 class="doc__title">職務経歴書</h1>
+
+      <p class="doc__lede">
+        小山田 卓生（おやまだ たくみ）。サーバーサイドエンジニア。2026年3月に金沢大学
+        電気電子情報通信学類を卒業し、同年4月に LINEヤフー株式会社へ入社しました。
+        学生時代から複数社で開発に携わり、現在は飲食店向けの AI
+        予約プロダクトのサーバーサイドを担当しています。
+      </p>
+
+      <p>
+        技術と並行して、技術カンファレンスの運営にも継続的に関わっています。
+        <a class="doc__link" href="/community/">運営に携わったイベントは{communityCount}件</a>で、
+        2026年10月開催の Hono Conference in Tokyo 2026 では実行委員長を務めています。
+      </p>
+
+      <h2 class="doc__head">職務経歴</h2>
+
+      {
+        workSections.map((section) => (
+          <section class="job">
+            <h3 class="job__company">
+              {section.data.companyUrl ? (
+                <a class="doc__link" href={section.data.companyUrl} rel="noopener">
+                  {section.data.company}
+                </a>
+              ) : (
+                section.data.company
+              )}
+            </h3>
+            <p class="job__meta tnum">
+              <span>{period(section.data.start, section.data.end)}</span>
+              <span>{section.data.title}</span>
+              <span>{section.data.employment}</span>
+              {section.data.remote && <span>リモート</span>}
+            </p>
+            {section.data.stack.length > 0 && (
+              <p class="job__stack">{section.data.stack.join(" · ")}</p>
+            )}
+            <div class="job__body">
+              <section.Content />
+            </div>
+          </section>
+        ))
+      }
+
+      <h2 class="doc__head">学歴</h2>
+
+      <ul class="plain">
+        {
+          schools.map((school) => (
+            <li class="record">
+              <span class="record__period tnum">
+                {period(school.data.start, school.data.end)}
+              </span>
+              <span class="record__what">
+                {school.data.schoolUrl ? (
+                  <a class="doc__link" href={school.data.schoolUrl} rel="noopener">
+                    {school.data.school}
+                  </a>
+                ) : (
+                  school.data.school
+                )}
+                {school.data.faculty && <span class="record__sub">{school.data.faculty}</span>}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2 class="doc__head">受賞</h2>
+
+      <ul class="plain">
+        {
+          honours.map((honour) => (
+            <li class="record">
+              <span class="record__period tnum">{honour.data.date}</span>
+              <span class="record__what">
+                {honour.data.event}　{honour.data.award}
+                {honour.data.work && (
+                  <span class="record__sub">
+                    作品「{honour.data.work}」
+                    {honour.data.team && `／チーム「${honour.data.team}」`}
+                  </span>
+                )}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2 class="doc__head">連絡先</h2>
+
+      <p>
+        ソフトウェアの設計・開発、業務アプリケーションの内製化支援、AI・LLM
+        の組み込みについてのご相談を受け付けています。
+        <a class="doc__link" href="https://x.com/1ye_q" rel="me noopener">X の DM</a>
+        にご連絡ください。作ったものは
+        <a class="doc__link" href="https://github.com/takumi0706" rel="me noopener">GitHub</a>
+        に、書いたものは
+        <a class="doc__link" href="https://zenn.dev/takumi0706" rel="me noopener">Zenn</a>
+        にあります。
+      </p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  /* --- 文書全体 ---------------------------------------------------------
+   * Long Document は罫線を引かない。仕切りは余白そのもの。 */
+  .doc {
+    padding-block: var(--space-lg) var(--space-2xl);
+  }
+
+  .doc__title {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    margin-block-end: var(--space-lg);
+  }
+
+  .doc__lede {
+    font-size: var(--text-md);
+    margin-block-end: var(--space-md);
+  }
+
+  .doc :global(p) {
+    max-inline-size: var(--measure-ja);
+  }
+
+  /* 見出しは本文の流れから立ち上がる。上に大きく空け、下は詰める。 */
+  .doc__head {
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    margin-block: var(--space-2xl) var(--space-md);
+  }
+
+  .doc__link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .doc__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .doc__link:active {
+    color: var(--color-ink-2);
+  }
+
+  /* --- 各社 ------------------------------------------------------------- */
+  .job {
+    margin-block-end: var(--space-xl);
+  }
+
+  .job__company {
+    font-size: var(--text-md);
+    font-weight: 600;
+    margin-block-end: var(--space-3xs);
+  }
+
+  .job__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-block-end: var(--space-2xs);
+  }
+
+  /* 区切りは中黒。欧文サイトの pipe や slash ではなく和文の約物を使う。 */
+  .job__meta span + span::before {
+    content: "·";
+    margin-inline-end: var(--space-2xs);
+  }
+
+  .job__stack {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    margin-block-end: var(--space-sm);
+  }
+
+  /* Markdown から描画される本文はスコープ付きスタイルが当たらないので :global で指定する。 */
+  .job__body :global(p) {
+    margin-block-end: var(--space-2xs);
+  }
+
+  .job__body :global(ul) {
+    max-inline-size: var(--measure-ja);
+  }
+
+  .job__body :global(li) {
+    position: relative;
+    padding-inline-start: var(--space-sm);
+  }
+
+  .job__body :global(li)::before {
+    content: "—";
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--color-muted);
+  }
+
+  /* --- 学歴・受賞 -------------------------------------------------------- */
+  .plain {
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .record {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-sm);
+    align-items: baseline;
+  }
+
+  .record__period {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  .record__sub {
+    display: block;
+    color: var(--color-ink-2);
+    font-size: var(--text-sm);
+  }
+
+  @media (width < 40rem) {
+    .record {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3xs);
+    }
+
+    .doc__link {
+      /* 44px のタップ領域は本文中のリンクには適用しない。行間が壊れるため。
+       * 代わりに下線を太くして触れる面積を稼ぐ。 */
+      text-decoration-thickness: 2px;
+    }
+  }
+</style>

@@ -1,0 +1,27 @@
+/* 和文フォント。
+ *
+ * @fontsource/ibm-plex-sans-jp を直接 import しないのは、124 サブセット × 2 ウェイト =
+ * 248 個の @font-face 宣言が CSS に展開され、レンダリングをブロックする CSS が
+ * 343KB (gzip 165KB) になるため。
+ *
+ * 代わりに scripts/subset-jp-font.mjs がソース中の和文を走査し、使う字だけの
+ * woff2 を public/fonts/ に書き出す。宣言はウェイトごとに 1 つで済む。
+ * コンテンツを足したら pnpm run fonts が再生成する（build / dev の前に自動実行）。
+ *
+ * 欧文グリフは Geist が持つため、この和文フォントは CJK のみを担当する。 */
+
+@font-face {
+  font-family: "IBM Plex Sans JP";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-jp-400-subset.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Sans JP";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-jp-600-subset.woff2") format("woff2");
+}

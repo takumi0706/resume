@@ -1,0 +1,385 @@
+---
+import { getCollection } from "astro:content";
+import Base from "@layouts/Base.astro";
+
+// 事実は src/content/ 以下のコンテンツファイルが単一の情報源。
+// このファイルには経歴データを直書きしない。
+
+interface IndexRow {
+  year: string;
+  what: string;
+  href: string | null;
+  role: string;
+}
+
+interface IndexGroup {
+  group: string;
+  rows: IndexRow[];
+}
+
+const byDescending = (a: string, b: string): number => b.localeCompare(a);
+const yearOf = (date: string): string => date.slice(0, 4);
+
+const community = await getCollection("community");
+const oss = await getCollection("oss");
+const work = await getCollection("work");
+const awards = await getCollection("awards");
+
+const groups: IndexGroup[] = [
+  {
+    group: "コミュニティ",
+    rows: community
+      .sort((a, b) => byDescending(a.data.date, b.data.date))
+      .map((entry) => ({
+        year: yearOf(entry.data.date),
+        what: entry.data.event,
+        href: entry.data.url ?? null,
+        role: entry.data.role,
+      })),
+  },
+  {
+    group: "オープンソース",
+    rows: oss
+      .sort((a, b) => byDescending(a.data.released, b.data.released))
+      .map((entry) => ({
+        year: yearOf(entry.data.released),
+        what: entry.data.name,
+        href: entry.data.url,
+        role:
+          entry.data.stars === undefined
+            ? entry.data.role
+            : `${entry.data.role} · ${entry.data.stars}★`,
+      })),
+  },
+  {
+    group: "職務",
+    rows: work
+      .sort((a, b) => byDescending(a.data.start, b.data.start))
+      .map((entry) => ({
+        year: yearOf(entry.data.start),
+        what: entry.data.company,
+        href: entry.data.companyUrl ?? null,
+        role: entry.data.title,
+      })),
+  },
+  {
+    group: "受賞",
+    rows: awards
+      .sort((a, b) => byDescending(a.data.date, b.data.date))
+      .map((entry) => ({
+        year: yearOf(entry.data.date),
+        what: entry.data.event,
+        href: entry.data.url ?? null,
+        role: entry.data.award,
+      })),
+  },
+];
+
+// 導入文で参照する現職と直近のカンファレンス。
+const current = work.find((entry) => entry.data.end === null && entry.data.employment === "正社員");
+const upcoming = community
+  .slice()
+  .sort((a, b) => byDescending(a.data.date, b.data.date))
+  .at(0);
+---
+
+<Base
+  title="小山田 卓生 — Takumi Oyamada"
+  description="小山田卓生（@takumi0706）のポートフォリオ。LINEヤフー株式会社のソフトウェアエンジニア。Hono Conference in Tokyo 2026 実行委員長。"
+>
+  {/* H1 · Marquee — knobs: size=xl, alignment=left-bias, underlay=rule-below */}
+  <section class="hero">
+    <div class="shell">
+      <h1 class="hero__display">
+        万象を理解し、問題を解決するサーバーサイドエンジニア。
+      </h1>
+    </div>
+  </section>
+
+  <div class="shell"><hr class="rule-thick" /></div>
+
+  {/* S4 · Inline no break — 見出しが本文の流れのなかから立ち上がる。空間的な断絶を作らない。 */}
+  <section class="now">
+    <div class="shell">
+      <p class="now__lede">
+        <span class="now__label">小山田 卓生</span>は、{current?.data.company}の{
+          current?.data.title
+        }です。{current?.data.summary}を担当し、AIによる電話応対から予約条件の確認、予約基盤との連携、予約成立までを支えています。リアルタイム音声対話の品質改善と、エージェントのガードレール・フォールバック設計に取り組んでいます。
+      </p>
+      {
+        upcoming && (
+          <p class="now__lede">
+            並行して、{upcoming.data.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1年$2月$3日")}
+            に開催する {upcoming.data.event} の{upcoming.data.role}を務めています。
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  {/* S2 · Hanging + F3 · Tabular spec sheet
+      knobs: columns=3, rules=every-row, numbers=tabular */}
+  <section class="index">
+    <div class="shell">
+      <h2 class="index__heading">これまで</h2>
+      <table class="index__table tnum">
+        <caption class="visually-hidden">年・内容・役割の一覧</caption>
+        <colgroup>
+          <col class="index__col-year" />
+          <col class="index__col-what" />
+          <col class="index__col-role" />
+        </colgroup>
+        {
+          groups.map((section) => (
+            <tbody class="index__group">
+              <tr class="index__group-head">
+                <th class="index__group-label" colspan="3" scope="colgroup">
+                  {section.group}
+                </th>
+              </tr>
+              {section.rows.map((row) => (
+                <tr class="index__row">
+                  <td class="index__year">{row.year}</td>
+                  <td class="index__what">
+                    {row.href ? (
+                      <a class="index__link" href={row.href} rel="noopener">
+                        {row.what}
+                      </a>
+                    ) : (
+                      row.what
+                    )}
+                  </td>
+                  <td class="index__role">{row.role}</td>
+                </tr>
+              ))}
+            </tbody>
+          ))
+        }
+      </table>
+    </div>
+  </section>
+
+  {/* C1 · Outlined chip — knobs: shape=rectangular, density=spacious, adornment=arrow
+      角丸のピル型にしない。ピルは Vercel / Linear を最も強く想起させる形。 */}
+  <section class="close">
+    <div class="shell">
+      <p class="close__line">
+        経歴・技術スタック・各社での業務内容は職務経歴書にまとめています。
+      </p>
+      <a class="chip" href="/resume/">
+        職務経歴書を読む<span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* --- hero -------------------------------------------------------------
+   * gate 44a: padding-block-end は start の 1.3 倍以上。
+   * 上下対称または上重心にするとヒーローがページから浮いて見える。 */
+  .hero {
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  .hero__display {
+    /* 全角26字（欧文換算52字）。Hallmark の規定により display ではなく
+     * display-s に落とす。100字級の見出しを display サイズで組むのが
+     * 最も確実な AI の痕跡になるため。 */
+    font-size: var(--text-display-s);
+    font-weight: 600;
+    max-inline-size: 18em;
+    text-wrap: balance;
+  }
+
+  /* --- now -------------------------------------------------------------- */
+  .now {
+    padding-block: var(--space-xl) var(--space-2xl);
+    display: grid;
+  }
+
+  .now__lede + .now__lede {
+    margin-block-start: var(--space-md);
+  }
+
+  .now__lede {
+    font-size: var(--text-md);
+    color: var(--color-ink-2);
+    max-inline-size: var(--measure-ja);
+  }
+
+  .now__label {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  /* --- index ------------------------------------------------------------ */
+  .index {
+    padding-block-end: var(--space-lg);
+  }
+
+  .index__heading {
+    font-size: var(--text-lg);
+    margin-block-end: var(--space-md);
+  }
+
+  .index__table {
+    font-size: var(--text-base);
+    table-layout: fixed;
+  }
+
+  .index__col-year {
+    inline-size: 5rem;
+  }
+
+  .index__col-role {
+    inline-size: 32%;
+  }
+
+  /* 群のラベル。text-transform: uppercase は和文には作用しないため使わない。
+   * 字間と色と大きさだけでラベルとして読ませる。 */
+  .index__group-head th {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-align: start;
+    color: var(--color-muted);
+    padding-block: var(--space-lg) var(--space-2xs);
+  }
+
+  .index__group:first-of-type .index__group-head th {
+    padding-block-start: 0;
+  }
+
+  .index__row {
+    border-block-start: var(--rule-hair) solid var(--color-rule-2);
+  }
+
+  .index__row td {
+    padding-block: var(--space-xs);
+    vertical-align: baseline;
+    text-align: start;
+  }
+
+  .index__year {
+    font-family: var(--font-outlier);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  .index__what {
+    font-weight: 500;
+  }
+
+  .index__role {
+    color: var(--color-ink-2);
+    font-size: var(--text-sm);
+  }
+
+  .index__link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .index__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .index__link:active {
+    color: var(--color-ink-2);
+  }
+
+  /* --- close ------------------------------------------------------------ */
+  .close {
+    padding-block: var(--space-2xl) 0;
+  }
+
+  .close__line {
+    color: var(--color-ink-2);
+    margin-block-end: var(--space-md);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-xs) var(--space-md);
+    min-block-size: 44px;
+    background-color: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-size: var(--text-base);
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    transition:
+      background-color var(--dur-short) var(--ease-out),
+      transform var(--dur-short) var(--ease-out);
+  }
+
+  .chip:hover {
+    background-color: var(--color-ink-2);
+  }
+
+  .chip:active {
+    transform: translateY(1px);
+  }
+
+  /* gate 27: transform を伴う状態変化には reduced-motion の代替を必ず用意する。 */
+  @media (prefers-reduced-motion: reduce) {
+    .chip:active {
+      transform: none;
+      background-color: var(--color-muted);
+    }
+  }
+
+  /* --- 40rem 以下: タイポグラフィのブレークポイント --------------------- */
+  @media (width < 40rem) {
+    .index__table,
+    .index__col-year,
+    .index__col-role {
+      inline-size: auto;
+    }
+
+    .index__table {
+      table-layout: auto;
+    }
+
+    /* 表を行ごとのブロックに畳む。3列を375pxに詰めると役割列が2行になる。 */
+    .index__row {
+      display: grid;
+      grid-template-columns: 4rem minmax(0, 1fr);
+      column-gap: var(--space-sm);
+      padding-block: var(--space-xs);
+    }
+
+    .index__row td {
+      padding-block: 0;
+    }
+
+    .index__year {
+      grid-row: 1 / span 2;
+    }
+
+    .index__role {
+      color: var(--color-muted);
+    }
+
+    .index__group-head th {
+      display: block;
+    }
+  }
+</style>

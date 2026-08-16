@@ -1,0 +1,173 @@
+@layer reset, base, japanese, layout, components;
+
+/* ===========================================================================
+ * reset
+ * ======================================================================== */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  /* gate 34: 横スクロールを起こさない。clip であって hidden ではない
+   * （hidden は position: sticky を壊す）。 */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  img,
+  picture,
+  svg {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ul,
+  ol {
+    list-style: none;
+    padding: 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    inline-size: 100%;
+  }
+}
+
+/* ===========================================================================
+ * base
+ * ======================================================================== */
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 400;
+    line-height: var(--leading-body);
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    /* 見出しは常にローマン体。italic は AI の痕跡として最も検出されやすい（gate 38a）。 */
+    font-style: normal;
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+    /* gate 51: 長い語の内部でも折り返す。日本語には効かないが欧文固有名詞に効く。 */
+    overflow-wrap: anywhere;
+    min-inline-size: 0;
+    text-wrap: balance;
+  }
+
+  p {
+    max-inline-size: var(--measure-ja);
+    text-wrap: pretty;
+  }
+
+  /* フォーカスリングは即座に現れる。トランジションを掛けてはならない。 */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ===========================================================================
+ * japanese — 和文組版
+ *
+ * このサイトの差別化はここにある。Geist / Linear / Vercel 系のデザインは
+ * すべて欧文前提で設計されており、和文をそのまま流し込むと行間が詰まり、
+ * 約物の前後が空き、和欧の境目が密着する。以下はその補正。
+ * ======================================================================== */
+@layer japanese {
+  :root {
+    /* 約物（、。「」（））の前後の余分なアキを詰める。
+     * text-spacing-trim が本命。palt は未対応ブラウザ向けの保険。 */
+    text-spacing-trim: trim-start;
+    font-feature-settings: "palt" 1;
+  }
+
+  body {
+    /* 和文と欧文・数字のあいだに四分アキを自動挿入する。
+     * 「LINEヤフー株式会社」「2026年10月11日」のような混植で効く。 */
+    text-autospace: normal;
+    /* 禁則処理を厳格に。行頭に句読点・閉じ括弧を置かない。 */
+    line-break: strict;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* 見出しは字面を締める。和文の見出しは欧文ほど行間を要さない。 */
+  h1,
+  h2,
+  h3 {
+    line-height: var(--leading-display);
+  }
+
+  /* 数字が縦に揃うべき場所（年号・件数）は等幅数字にする。 */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ===========================================================================
+ * layout
+ * ======================================================================== */
+@layer layout {
+  .shell {
+    inline-size: 100%;
+    max-inline-size: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+  }
+
+  .rule-thick {
+    border: 0;
+    border-block-start: var(--rule-thick) solid var(--color-ink);
+    margin: 0;
+  }
+
+  .rule-hair {
+    border: 0;
+    border-block-start: var(--rule-hair) solid var(--color-rule);
+    margin: 0;
+  }
+}

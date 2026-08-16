@@ -1,0 +1,135 @@
+---
+// Ft2 · Inline single line
+// knobs: order=wordmark/links/credit · separator=middot · density=spaced
+//
+// ヘッダーがリンクを持たないぶん、行き先はここが引き受ける。
+// ただし列組みにはしない。4列インデックス＋ソーシャルアイコン行＋小さな著作権表示は
+// anti-patterns.md が "The AI footer" として名指ししている形。
+
+const sections = [
+  { label: "コミュニティ", href: "/community/" },
+  { label: "OSS", href: "/oss/" },
+  { label: "職務経歴書", href: "/resume/" },
+  { label: "スキル", href: "/skill/" },
+  { label: "執筆", href: "/blog/" },
+];
+
+const elsewhere = [
+  { label: "GitHub", href: "https://github.com/takumi0706" },
+  { label: "X", href: "https://x.com/1ye_q" },
+  { label: "Zenn", href: "https://zenn.dev/takumi0706" },
+];
+---
+
+<footer class="site-footer">
+  <div class="shell">
+    <hr class="rule-hair" />
+    <div class="site-footer__row">
+      <span class="site-footer__wordmark">小山田 卓生</span>
+
+      <nav class="site-footer__links" aria-label="サイト内">
+        {
+          sections.map((item) => (
+            <a class="site-footer__link" href={item.href}>
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+
+      <nav class="site-footer__links" aria-label="外部リンク">
+        {
+          elsewhere.map((item) => (
+            <a class="site-footer__link" href={item.href} rel="me noopener">
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+
+      <span class="site-footer__credit tnum">© 2026</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-block-start: var(--space-3xl);
+    padding-block-end: var(--space-xl);
+  }
+
+  .site-footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-sm) var(--space-lg);
+    padding-block-start: var(--space-md);
+    font-size: var(--text-sm);
+  }
+
+  .site-footer__wordmark {
+    font-family: var(--font-outlier);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-sm);
+  }
+
+  /* 中黒で区切る。欧文サイトの pipe や slash ではなく和文の約物を使う。 */
+  .site-footer__links a + a::before {
+    content: "·";
+    color: var(--color-rule);
+    margin-inline-end: var(--space-sm);
+  }
+
+  .site-footer__link {
+    color: var(--color-ink-2);
+    white-space: nowrap;
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    /* gate 35: 下線は1〜2px、ベースラインからのオフセットも1〜2px。
+     * 0.15em ≒ 2.4px。和文は欧文よりディセンダが深いのでこの程度が下限。 */
+    text-underline-offset: 0.15em;
+    transition:
+      color var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .site-footer__link:hover {
+    color: var(--color-ink);
+    text-decoration-color: var(--color-ink);
+  }
+
+  .site-footer__link:active {
+    color: var(--color-muted);
+  }
+
+  .site-footer__credit {
+    margin-inline-start: auto;
+    color: var(--color-muted);
+  }
+
+  @media (width < 40rem) {
+    .site-footer__row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-md);
+    }
+
+    .site-footer__credit {
+      margin-inline-start: 0;
+    }
+
+    .site-footer__link {
+      min-block-size: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+</style>

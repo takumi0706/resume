@@ -1,0 +1,74 @@
+---
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+// 和文は scripts/subset-jp-font.mjs が生成したサブセットを使う。理由は fonts.css を参照。
+import "@styles/fonts.css";
+import "@styles/tokens.css";
+import "@styles/base.css";
+import SiteHeader from "@components/SiteHeader.astro";
+import SiteFooter from "@components/SiteFooter.astro";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {/* 和文サブセットは LCP に効くので先読みする。公開パスが固定なので preload できる。 */}
+    <link
+      rel="preload"
+      href="/fonts/ibm-plex-sans-jp-600-subset.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/ibm-plex-sans-jp-400-subset.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="profile" />
+    <meta property="og:locale" content="ja_JP" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">本文へスキップ</a>
+    <SiteHeader />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    inset-block-start: var(--space-2xs);
+    inset-inline-start: var(--space-2xs);
+    z-index: var(--z-overlay);
+    padding: var(--space-2xs) var(--space-sm);
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-sm);
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+</style>

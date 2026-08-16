@@ -1,0 +1,54 @@
+---
+// C1 · Outlined chip — knobs: shape=rectangular, density=spacious, adornment=arrow
+//
+// design.md の CTA voice をここに集約する。
+// 角丸のピル型にしない。ピルは Vercel / Linear を最も強く想起させる形。
+
+interface Props {
+  href: string;
+  label: string;
+  external?: boolean;
+}
+
+const { href, label, external = false } = Astro.props;
+---
+
+<a class="chip" href={href} rel={external ? "noopener" : undefined}>
+  {label}<span aria-hidden="true">→</span>
+</a>
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-xs) var(--space-md);
+    min-block-size: 44px;
+    background-color: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-size: var(--text-base);
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    /* gate 49: クリック可能なテキストは決して2行にしない。 */
+    white-space: nowrap;
+    transition:
+      background-color var(--dur-short) var(--ease-out),
+      transform var(--dur-short) var(--ease-out);
+  }
+
+  .chip:hover {
+    background-color: var(--color-ink-2);
+  }
+
+  .chip:active {
+    transform: translateY(1px);
+  }
+
+  /* gate 27: transform を伴う状態変化には reduced-motion の代替を必ず用意する。 */
+  @media (prefers-reduced-motion: reduce) {
+    .chip:active {
+      transform: none;
+      background-color: var(--color-muted);
+    }
+  }
+</style>

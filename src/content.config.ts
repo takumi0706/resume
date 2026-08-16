@@ -62,8 +62,9 @@ const oss = defineCollection({
     role: z.string(),
     released: yearMonth,
     stars: z.number().int().nonnegative().optional(),
-    /** star 数は変動するので、いつ時点の数字かを必ず添える。 */
-    starsAsOf: yearMonth.optional(),
+    forks: z.number().int().nonnegative().optional(),
+    /** star / fork 数は変動するので、いつ時点の数字かを必ず添える。 */
+    metricsAsOf: yearMonth.optional(),
     stack: z.array(z.string()).default([]),
     summary: z.string(),
   }),

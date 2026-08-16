@@ -1,0 +1,224 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "@layouts/Base.astro";
+import Chip from "@components/Chip.astro";
+
+// 04 · Stat-Led
+// 主役の数字がページを引っ張り、以降はそれを支える／限定する情報が続く。
+//
+// Hallmark の既定では数字を 0 からカウントアップさせるが、このプロジェクトは
+// motion-cut なので採用しない（design.md の Motion stance）。
+//
+// gate 46: 数字だけを見出しにしてはならない。何を意味するかを言葉で添える。
+
+const byDescending = (a: number, b: number): number => b - a;
+
+const oss = await getCollection("oss");
+
+// star 数が最も多いものを主役に、残りを支える側に置く。
+const sorted = [...oss].sort((a, b) => byDescending(a.data.stars ?? 0, b.data.stars ?? 0));
+const [lead, ...rest] = sorted;
+
+const LeadContent = lead ? (await render(lead)).Content : null;
+
+const restSections = await Promise.all(
+  rest.map(async (entry) => ({
+    data: entry.data,
+    Content: (await render(entry)).Content,
+  })),
+);
+
+const jpMonth = (yearMonth: string): string => {
+  const [year, month] = yearMonth.split("-");
+  return `${year}年${Number(month)}月`;
+};
+---
+
+<Base
+  title="オープンソース — 小山田 卓生"
+  description="小山田卓生（@takumi0706）が公開しているオープンソース。Claude Desktop 連携用の Google Calendar MCP サーバーほか。"
+>
+  <article class="oss">
+    <div class="shell">
+      {
+        lead && (
+          <section class="stat">
+            <p class="stat__figure tnum">
+              {lead.data.stars}
+              <span class="stat__unit" aria-hidden="true">
+                ★
+              </span>
+              <span class="visually-hidden">スター</span>
+            </p>
+            <h1 class="stat__headline">
+              {lead.data.summary}を、{jpMonth(lead.data.released)}から公開しています。
+            </h1>
+            <p class="stat__qualifier tnum">
+              {lead.data.name} · {lead.data.forks} フォーク ·{" "}
+              {lead.data.stack.join(" / ")}
+              {lead.data.metricsAsOf && (
+                <span class="stat__asof">（{jpMonth(lead.data.metricsAsOf)}時点）</span>
+              )}
+            </p>
+            <div class="stat__body">{LeadContent && <LeadContent />}</div>
+            <Chip href={lead.data.url} label="GitHub で見る" external />
+          </section>
+        )
+      }
+
+      <h2 class="oss__head">ほかに公開しているもの</h2>
+
+      <div class="others">
+        {
+          restSections.map((section) => (
+            <section class="other">
+              <h3 class="other__name">
+                <a class="other__link" href={section.data.url} rel="noopener">
+                  {section.data.name}
+                </a>
+              </h3>
+              <p class="other__meta tnum">
+                <span>{jpMonth(section.data.released)}</span>
+                <span>{section.data.role}</span>
+              </p>
+              <div class="other__body">
+                <section.Content />
+              </div>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .oss {
+    padding-block: var(--space-lg) var(--space-2xl);
+  }
+
+  /* --- 主役の数字 -------------------------------------------------------- */
+  .stat {
+    padding-block-end: var(--space-2xl);
+  }
+
+  .stat__figure {
+    font-size: var(--text-display);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    /* 数字は行頭を揃えたいので視覚補正を切る。 */
+    font-feature-settings: "palt" 0;
+  }
+
+  .stat__unit {
+    font-size: 0.4em;
+    margin-inline-start: 0.15em;
+    color: var(--color-muted);
+    vertical-align: 0.6em;
+  }
+
+  /* 数字だけを見出しにしない。何を意味するかを言葉で言う（gate 46）。 */
+  .stat__headline {
+    font-size: var(--text-md);
+    font-weight: 500;
+    max-inline-size: var(--measure-ja);
+    margin-block: var(--space-sm) var(--space-xs);
+  }
+
+  .stat__qualifier {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    border-block-start: var(--rule-hair) solid var(--color-rule);
+    padding-block-start: var(--space-xs);
+    max-inline-size: var(--measure-ja);
+  }
+
+  .stat__asof {
+    margin-inline-start: var(--space-2xs);
+  }
+
+  .stat__body {
+    margin-block: var(--space-md) var(--space-lg);
+  }
+
+  .stat__body :global(p) {
+    max-inline-size: var(--measure-ja);
+    color: var(--color-ink-2);
+  }
+
+  .stat__body :global(p + p) {
+    margin-block-start: var(--space-sm);
+  }
+
+  /* --- そのほか ---------------------------------------------------------- */
+  .oss__head {
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    margin-block-end: var(--space-md);
+  }
+
+  .others {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  .other {
+    border-block-start: var(--rule-hair) solid var(--color-rule-2);
+    padding-block-start: var(--space-md);
+  }
+
+  .other__name {
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  .other__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-block: var(--space-3xs) var(--space-2xs);
+  }
+
+  .other__meta span + span::before {
+    content: "·";
+    margin-inline-end: var(--space-2xs);
+  }
+
+  .other__body :global(p) {
+    max-inline-size: var(--measure-ja);
+    color: var(--color-ink-2);
+  }
+
+  .other__link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .other__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .other__link:active {
+    color: var(--color-ink-2);
+  }
+</style>

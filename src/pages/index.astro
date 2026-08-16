@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "@layouts/Base.astro";
+import Chip from "@components/Chip.astro";
 
 // 事実は src/content/ 以下のコンテンツファイルが単一の情報源。
 // このファイルには経歴データを直書きしない。
@@ -159,16 +160,13 @@ const upcoming = community
     </div>
   </section>
 
-  {/* C1 · Outlined chip — knobs: shape=rectangular, density=spacious, adornment=arrow
-      角丸のピル型にしない。ピルは Vercel / Linear を最も強く想起させる形。 */}
+  {/* CTA の見た目は Chip コンポーネントに集約している（design.md の CTA voice）。 */}
   <section class="close">
     <div class="shell">
       <p class="close__line">
         経歴・技術スタック・各社での業務内容は職務経歴書にまとめています。
       </p>
-      <a class="chip" href="/resume/">
-        職務経歴書を読む<span aria-hidden="true">→</span>
-      </a>
+      <Chip href="/resume/" label="職務経歴書を読む" />
     </div>
   </section>
 </Base>
@@ -311,39 +309,6 @@ const upcoming = community
   .close__line {
     color: var(--color-ink-2);
     margin-block-end: var(--space-md);
-  }
-
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    padding: var(--space-xs) var(--space-md);
-    min-block-size: 44px;
-    background-color: var(--color-accent);
-    color: var(--color-accent-ink);
-    font-size: var(--text-base);
-    font-weight: 500;
-    border-radius: var(--radius-md);
-    white-space: nowrap;
-    transition:
-      background-color var(--dur-short) var(--ease-out),
-      transform var(--dur-short) var(--ease-out);
-  }
-
-  .chip:hover {
-    background-color: var(--color-ink-2);
-  }
-
-  .chip:active {
-    transform: translateY(1px);
-  }
-
-  /* gate 27: transform を伴う状態変化には reduced-motion の代替を必ず用意する。 */
-  @media (prefers-reduced-motion: reduce) {
-    .chip:active {
-      transform: none;
-      background-color: var(--color-muted);
-    }
   }
 
   /* --- 40rem 以下: タイポグラフィのブレークポイント --------------------- */

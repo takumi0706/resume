@@ -25,12 +25,31 @@
 |---|---|---|
 | `/` | 03 Marquee Hero | 一文が主張。フォールドは純粋にタイポグラフィ |
 | `/resume/` | 02 Long Document | 職務経歴書は読み物。連続する散文と内在する見出し |
-| `/community/` | 未定 | |
-| `/oss/` | 未定 | |
+| `/oss/` | 04 Stat-Led | 主役が1つ（google-calendar-mcp）で階層が明確。数字が narrative |
+| `/community/` | 未定 | 12 Letter が構造上は最適だが、一人称で語る材料（なぜ運営するのか）が未取得 |
 | `/skill/` | 未定 | |
 | `/blog/` | 未定 | |
 
 新しいページを足すときは、既出のマクロ構造と重複しないものを選び、この表に記録する。
+
+**選定時は「Reach for it」だけでなく「Avoid」を必ず読むこと。** 実際に
+以下の候補が Avoid 節で弾かれた。
+
+| 候補 | 弾かれた理由 |
+|---|---|
+| 11 Catalogue → `/oss/` | 「全項目を等価に扱う。階層のあるものには誤り」 |
+| 01 Bento Grid → `/oss/` | 「8〜15ブロックが前提」「単一の主張のページには使うな」 |
+| 14 Narrative Workflow → `/community/` | 「明示的なワークフロー向け。実在の順序が必要」 |
+| 15 Split Studio → `/community/` | 対向半分に視覚的な証拠が要る（画像がない）。しかも Reference が Vercel |
+| 06 Conversational FAQ → `/community/` | 「主たるページには使うな。開幕を担う別のマクロ構造と組む前提」 |
+
+## マクロ構造の既定から外している点
+
+| 外したもの | 理由 |
+|---|---|
+| Stat-Led の number-tick（0からのカウントアップ） | motion-cut のため |
+| Split Studio / Bento のリビール | 同上 |
+| Letter の「セリフ体イタリックの呼びかけ」 | 見出しのイタリックは全体で禁止（gate 38a）。かつ modern-minimal はサンセリフ通し |
 
 ## import のルール
 

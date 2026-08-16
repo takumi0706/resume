@@ -1,0 +1,58 @@
+name: build__site
+
+# build-test を branch protection の必須ステータスチェックにするため、
+# paths フィルタを設けず全 PR で実行する。
+# paths で絞ると対象外の PR ではチェックが報告されず、マージが塞がる。
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+# 既定では何も書き込ませない。checkout に必要な read のみ job 側で付与する。
+permissions: {}
+
+concurrency:
+  group: "build-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # ビルド検証では認証情報を残す必要がない。
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 型検査。型アサーションと any を禁じているので、ここが崩れると設計が崩れる。
+      - name: Type check
+        run: pnpm run check
+
+      # 和文フォントのサブセット生成を含む。コンテンツに新しい漢字が入ると
+      # ここで拾われるため、フォントの取りこぼしもこの段階で検出できる。
+      - name: Build
+        run: pnpm run build
+
+      # Astro は VitePress と違ってデッドリンク検査を持たないので自前で行う。
+      # ページを増やすほどリンク切れの危険が増える。
+      - name: Check internal links
+        run: pnpm run check:links

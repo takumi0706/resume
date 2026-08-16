@@ -1,0 +1,53 @@
+name: check__external_links
+
+# 外部リンクの検査は PR のブロッキングチェックにしない。
+# 相手先サーバーやネットワークの都合で落ちると「赤いのが普通」の状態になり、
+# チェックそのものが機能しなくなるため、週次で回して気づける状態だけを保つ。
+on:
+  schedule:
+    - cron: "0 0 * * 1" # 毎週月曜 00:00 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  external-links:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Check external links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          # 内部リンクは build__site が検査済みなので、ここでは外部だけを見る。
+          # X はボットに 403 を返すため除外する（検査できないものを赤くしない）。
+          args: >-
+            --no-progress
+            --exclude-path dist/_astro
+            --exclude '^https?://(x|twitter)\.com'
+            --max-concurrency 4
+            --accept 200,206,301,302,303,307,308
+            'dist/**/*.html'
+          fail: true

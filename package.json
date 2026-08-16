@@ -2,6 +2,7 @@
   "name": "resume",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -11,7 +12,9 @@
     "build": "pnpm run fonts && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "astro": "astro"
+    "astro": "astro",
+    "check:links": "node scripts/check-links.mjs",
+    "ci": "pnpm run check && pnpm run build && pnpm run check:links"
   },
   "dependencies": {
     "astro": "^7.2.2"

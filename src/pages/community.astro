@@ -1,0 +1,201 @@
+---
+import { getCollection } from "astro:content";
+import Base from "@layouts/Base.astro";
+
+// 12 · Letter
+// 一人称の、書かれたもの。ボタンはフォールドに置かない。
+//
+// Hallmark の既定は「セリフ体イタリックの呼びかけ」だが、見出しのイタリックは
+// 全体で禁止（gate 38a）、かつ modern-minimal はサンセリフ通しなのでローマン体にする。
+// 逸脱の記録は design.md にある。
+//
+// 本文に第三者の実名を書かない。「紹介された」「引き継いだ」はいずれも相手の行動であり、
+// 本人の許諾なく公開の場に書くべきではない。
+// 前任者がなぜ引き継いだのかにも触れない。他人の内心は本人にしか語れない。
+
+const byDescending = (a: string, b: string): number => b.localeCompare(a);
+
+const community = await getCollection("community");
+const record = community.sort((a, b) => byDescending(a.data.date, b.data.date));
+
+const jpDate = (date: string): string => {
+  const [year, month] = date.split("-");
+  return `${year}年${Number(month)}月`;
+};
+---
+
+<Base
+  title="カンファレンス運営 — 小山田 卓生"
+  description="小山田卓生（@takumi0706）のカンファレンス運営歴。Hono Conference in Tokyo 2026 実行委員長。YAPC::Hakodate 2024 からカンファレンスの運営に関わっています。"
+>
+  <article class="letter">
+    <div class="shell">
+      <h1 class="letter__salutation">2024年10月、函館。</h1>
+
+      <div class="letter__body">
+        <p>
+          学生のころ、知人に YAPC::Hakodate
+          を紹介されました。行ってみたい気持ちはあったものの、知り合いは誰もいません。当日スタッフとして参加すれば浮かないだろう、というのが最初の動機でした。
+        </p>
+
+        <p>
+          実際に手を動かしてみると、運営そのものが面白いことに気づきました。それ以来、スタッフを募集しているカンファレンスにちょくちょく顔を出すようになりました。
+        </p>
+
+        <p>
+          カンファレンスを運営する理由をひとつ挙げるなら、交流ができるからです。
+        </p>
+
+        <p class="letter__separator" aria-hidden="true">* * *</p>
+
+        <p>
+          Hono Conference は、吉祥寺.pm
+          を主催している方が動かしているのを見て、手伝おうと思ったのがはじまりです。2025年はコアスタッフとして関わり、2026年は前任者から実行委員長を引き継ぎました。
+        </p>
+
+        <p>
+          実行委員長としてやっているのは、意思決定と、スポンサーとの会話と、予算管理です。あとは、コアスタッフがそれぞれ動きやすい状態をつくること。
+        </p>
+
+        <p>
+          イベントごとに関わりの深さは違います。当日スタッフだけのこともあれば、企画から入ることもあります。手が足りていないところに入る、という決め方をしています。
+        </p>
+      </div>
+
+      <h2 class="letter__head">関わったカンファレンス</h2>
+
+      <ul class="record">
+        {
+          record.map((entry) => (
+            <li class="record__item">
+              <span class="record__date tnum">{jpDate(entry.data.date)}</span>
+              <span class="record__event">
+                {entry.data.url ? (
+                  <a class="record__link" href={entry.data.url} rel="noopener">
+                    {entry.data.event}
+                  </a>
+                ) : (
+                  entry.data.event
+                )}
+                {entry.data.venue && <span class="record__venue">{entry.data.venue}</span>}
+              </span>
+              <span class="record__role">{entry.data.role}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="letter__signoff">
+        スタッフを募集しているカンファレンスがあれば、だいたい顔を出します。
+        <a class="record__link" href="https://x.com/1ye_q" rel="me noopener">声をかけてください →</a>
+      </p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .letter {
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  /* 呼びかけ。本文の 1.5〜2 倍。イタリックにはしない（gate 38a）。 */
+  .letter__salutation {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-block-end: var(--space-lg);
+  }
+
+  /* 仕切りは段落の余白だけ。罫線を引かない。 */
+  .letter__body :global(p) {
+    max-inline-size: var(--measure-ja);
+  }
+
+  .letter__body :global(p + p) {
+    margin-block-start: var(--space-md);
+  }
+
+  .letter__separator {
+    color: var(--color-muted);
+    letter-spacing: 0.4em;
+    margin-block: var(--space-lg) var(--space-lg);
+  }
+
+  .letter__head {
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    margin-block: var(--space-2xl) var(--space-md);
+  }
+
+  /* --- 記録 -------------------------------------------------------------- */
+  .record {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .record__item {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr) 8rem;
+    gap: var(--space-sm);
+    align-items: baseline;
+  }
+
+  .record__date {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  .record__event {
+    font-weight: 500;
+  }
+
+  .record__venue {
+    display: block;
+    font-weight: 400;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .record__role {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+
+  .record__link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .record__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .record__link:active {
+    color: var(--color-ink-2);
+  }
+
+  /* 署名は手紙の締め。ボタンではなく本文中のリンクで閉じる。 */
+  .letter__signoff {
+    margin-block-start: var(--space-2xl);
+    max-inline-size: var(--measure-ja);
+    color: var(--color-ink-2);
+  }
+
+  @media (width < 40rem) {
+    .record__item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3xs);
+    }
+
+    .record__role {
+      color: var(--color-muted);
+    }
+  }
+</style>

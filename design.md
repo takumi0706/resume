@@ -27,8 +27,8 @@
 | `/resume/` | 02 Long Document | 職務経歴書は読み物。連続する散文と内在する見出し |
 | `/oss/` | 04 Stat-Led | 主役が1つ（google-calendar-mcp）で階層が明確。数字が narrative |
 | `/community/` | 12 Letter | 一人称。運営に関わる理由は本人の言葉でしか書けない |
-| `/skill/` | 未定 | |
-| `/blog/` | 未定 | |
+| `/skill/` | 01 Bento Grid | 数の多い小さなもの。タイルの大小で実績の厚みを表す |
+| `/blog/` | 13 Index-First | ページ自体が目録。リンクがボタンを兼ねる |
 
 新しいページを足すときは、既出のマクロ構造と重複しないものを選び、この表に記録する。
 
@@ -50,6 +50,21 @@
 | Stat-Led の number-tick（0からのカウントアップ） | motion-cut のため |
 | Split Studio / Bento のリビール | 同上 |
 | Letter の「セリフ体イタリックの呼びかけ」 | 見出しのイタリックは全体で禁止（gate 38a）。かつ modern-minimal はサンセリフ通し |
+| Bento のヒーロー中央揃え | 中央揃えの連続は anti-pattern（Centred everything）。サイト全体も左寄せ |
+
+## 和文フォントの先読み
+
+`Base.astro` の `preloadDisplayWeight` で、和文の太いウェイト(600)を先読みするか
+ページ側が決める。既定は true。
+
+見出しに和文を持たないページ（`/blog/` など）で先読みすると 41KB を落として
+捨てることになり、ブラウザが「preload したのに使われていない」と警告を出す。
+そういうページは `preloadDisplayWeight={false}` を渡す。
+
+## 文字サイズの下限
+
+`--text-xs` (10.24px) は使わない。規約の絶対下限ぎりぎりで実用に耐えない。
+ラベルの最小は `--text-sm` (12.8px)。
 
 ## import のルール
 

@@ -11,9 +11,17 @@ import SiteFooter from "@components/SiteFooter.astro";
 interface Props {
   title: string;
   description: string;
+  /**
+   * 和文の太いウェイト(600)を先読みするか。
+   *
+   * 見出しに和文を持つページは true。持たないページで先読みすると 41KB を
+   * 落として捨てることになる（ブラウザが「preload したのに使われていない」と
+   * 警告を出す）。既定は true で、使わないページ側が明示的に false にする。
+   */
+  preloadDisplayWeight?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, preloadDisplayWeight = true } = Astro.props;
 ---
 
 <!doctype html>
@@ -22,14 +30,19 @@ const { title, description } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    {/* 和文サブセットは LCP に効くので先読みする。公開パスが固定なので preload できる。 */}
-    <link
-      rel="preload"
-      href="/fonts/ibm-plex-sans-jp-600-subset.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    {/* 和文サブセットは LCP に効くので先読みする。公開パスが固定なので preload できる。
+        ただし実際に使うウェイトだけを先読みする。 */}
+    {
+      preloadDisplayWeight && (
+        <link
+          rel="preload"
+          href="/fonts/ibm-plex-sans-jp-600-subset.woff2"
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
+      )
+    }
     <link
       rel="preload"
       href="/fonts/ibm-plex-sans-jp-400-subset.woff2"

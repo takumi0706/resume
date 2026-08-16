@@ -1,5 +1,5 @@
 import { defineCollection } from "astro:content";
-import { glob } from "astro/loaders";
+import { glob, file } from "astro/loaders";
 import { z } from "astro/zod";
 
 /**
@@ -83,4 +83,39 @@ const awards = defineCollection({
   }),
 });
 
-export const collections = { work, education, community, oss, awards };
+/**
+ * 技術スキル。
+ *
+ * 「中級」「実務レベル」といった自己申告の段階は持たない。検証できないうえ、
+ * 面接で必ず掘られる。代わりに usedIn に「どこで使ったか」だけを書く。
+ * usedIn が空のものはページに出ない（最低1件を必須にしている）。
+ */
+const skills = defineCollection({
+  loader: glob({ base: "./src/content/skills", pattern: "**/*.md" }),
+  schema: z.object({
+    name: z.string(),
+    category: z.enum(["言語", "フレームワーク", "データ", "インフラ", "開発プロセス"]),
+    /** 実績のある場所。会社名・OSS 名・記事名など、辿れる単位で書く。 */
+    usedIn: z.array(z.string()).min(1, "実績が1件もない技術は載せない"),
+    note: z.string().optional(),
+  }),
+});
+
+/**
+ * Zenn の記事。scripts/fetch-zenn.mjs が生成した JSON を読む。
+ * ビルド時に Zenn を叩かないのは、外部サービスの障害で CI が落ちるのを避けるため。
+ * 記事を書いたら pnpm run zenn で更新する。
+ */
+const writing = defineCollection({
+  loader: file("src/data/zenn.json"),
+  schema: z.object({
+    title: z.string(),
+    url: z.url(),
+    publishedAt: yearMonthDay,
+    likes: z.number().int().nonnegative(),
+    /** Zenn の記事区分。tech = 技術記事、idea = アイデア記事。 */
+    type: z.enum(["tech", "idea"]),
+  }),
+});
+
+export const collections = { work, education, community, oss, awards, skills, writing };

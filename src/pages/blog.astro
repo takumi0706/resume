@@ -1,0 +1,151 @@
+---
+import { getCollection } from "astro:content";
+import Base from "@layouts/Base.astro";
+
+// 13 · Index-First
+// ページそのものがリンクの目録。ヒーローも物語の流れも持たない。
+// 見出しは冒頭の短い一段落だけで、ディスプレイサイズの文字は使わない。
+// リンクそのものがボタンであり、別途 CTA を置かない。
+
+const writing = await getCollection("writing");
+
+const articles = [...writing].sort((a, b) =>
+  b.data.publishedAt.localeCompare(a.data.publishedAt),
+);
+
+// 年でまとめる。目録は時間軸で引けると探しやすい。
+const years = [...new Set(articles.map((article) => article.data.publishedAt.slice(0, 4)))];
+
+const byYear = years.map((year) => ({
+  year,
+  items: articles.filter((article) => article.data.publishedAt.startsWith(year)),
+}));
+
+const total = articles.length;
+const range =
+  articles.length > 0
+    ? `${articles.at(-1)?.data.publishedAt.slice(0, 4)} — ${articles[0].data.publishedAt.slice(0, 4)}`
+    : "";
+
+const monthDay = (date: string): string => {
+  const [, month, day] = date.split("-");
+  return `${Number(month)}/${Number(day)}`;
+};
+---
+
+<Base
+  title="執筆 — 小山田 卓生"
+  description="小山田卓生（@takumi0706）が Zenn に書いた記事の一覧。バックエンド、AWS、TypeScript、開発プロセスについて。"
+  preloadDisplayWeight={false}
+>
+  <article class="index-page">
+    <div class="shell">
+      <p class="index-page__lede tnum">Zenn に書いたもの · {range} · {total}本</p>
+
+      {
+        byYear.map((group) => (
+          <section class="year">
+            <h2 class="year__label tnum">{group.year}</h2>
+            <ul class="entries">
+              {group.items.map((article) => (
+                <li class="entry">
+                  <span class="entry__date tnum">{monthDay(article.data.publishedAt)}</span>
+                  <a class="entry__link" href={article.data.url} rel="noopener">
+                    {article.data.title}
+                  </a>
+                  <span class="entry__meta tnum">
+                    {article.data.likes > 0 && (
+                      <span class="entry__likes">{article.data.likes}♡</span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</Base>
+
+<style>
+  .index-page {
+    padding-block: var(--space-lg) var(--space-2xl);
+  }
+
+  /* 目録の見出しは一段落だけ。ディスプレイサイズは使わない。 */
+  .index-page__lede {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    margin-block-end: var(--space-xl);
+  }
+
+  .year + .year {
+    margin-block-start: var(--space-xl);
+  }
+
+  .year__label {
+    font-family: var(--font-outlier);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-muted);
+    margin-block-end: var(--space-2xs);
+  }
+
+  .entries {
+    display: grid;
+  }
+
+  /* 仕切りは各行のヘアライン。 */
+  .entry {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) 3.5rem;
+    gap: var(--space-sm);
+    align-items: baseline;
+    padding-block: var(--space-xs);
+    border-block-start: var(--rule-hair) solid var(--color-rule-2);
+  }
+
+  .entry__date {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  /* リンクそのものがボタン。別の CTA は置かない。 */
+  .entry__link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .entry__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .entry__link:active {
+    color: var(--color-ink-2);
+  }
+
+  .entry__meta {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    text-align: end;
+  }
+
+  @media (width < 40rem) {
+    .entry {
+      grid-template-columns: 3.5rem minmax(0, 1fr);
+      row-gap: var(--space-3xs);
+    }
+
+    .entry__meta {
+      grid-column: 2;
+      text-align: start;
+    }
+  }
+</style>

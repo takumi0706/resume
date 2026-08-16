@@ -1,0 +1,154 @@
+[
+  {
+    "id": "50545c8ae3c92e",
+    "title": "VueFes Japan 2025 に学生支援で参加してきた",
+    "url": "https://zenn.dev/takumi0706/articles/50545c8ae3c92e",
+    "publishedAt": "2025-11-26",
+    "likes": 3,
+    "type": "idea"
+  },
+  {
+    "id": "12229d929523ec",
+    "title": "モノレポ＋Hono＋OpenAPIスキーマ駆動(Orval)+Drizzleは最高",
+    "url": "https://zenn.dev/takumi0706/articles/12229d929523ec",
+    "publishedAt": "2025-11-26",
+    "likes": 114,
+    "type": "tech"
+  },
+  {
+    "id": "ef289ead0bf4ba",
+    "title": "Amplifyのキャッシュのせいで1日潰れた件について",
+    "url": "https://zenn.dev/takumi0706/articles/ef289ead0bf4ba",
+    "publishedAt": "2025-11-20",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "a34eaf00ff4624",
+    "title": "チーム開発について改めて考えたこと",
+    "url": "https://zenn.dev/takumi0706/articles/a34eaf00ff4624",
+    "publishedAt": "2025-11-15",
+    "likes": 3,
+    "type": "idea"
+  },
+  {
+    "id": "a271229a136a9a",
+    "title": "Vitest と PostCSS の相性問題解決ガイド",
+    "url": "https://zenn.dev/takumi0706/articles/a271229a136a9a",
+    "publishedAt": "2025-06-28",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "61ca9de593d6e2",
+    "title": "LocalStackでLambda(TS)関数をinvokeしようとしたらつまずいた",
+    "url": "https://zenn.dev/takumi0706/articles/61ca9de593d6e2",
+    "publishedAt": "2025-06-26",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "3fe6bd511ea72f",
+    "title": "命名と期待される動作",
+    "url": "https://zenn.dev/takumi0706/articles/3fe6bd511ea72f",
+    "publishedAt": "2025-02-24",
+    "likes": 1,
+    "type": "tech"
+  },
+  {
+    "id": "ac2632c9d4f685",
+    "title": "CloudTrailを利用したセキュリティ強化　〜Partition構成の検討",
+    "url": "https://zenn.dev/takumi0706/articles/ac2632c9d4f685",
+    "publishedAt": "2024-11-14",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "332f0d71524b96",
+    "title": "Lambdaレイヤー用のAWS CLIライブラリーZip作成",
+    "url": "https://zenn.dev/takumi0706/articles/332f0d71524b96",
+    "publishedAt": "2024-11-14",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "d9e1e3086043f5",
+    "title": "Athenaのパーティションとは",
+    "url": "https://zenn.dev/takumi0706/articles/d9e1e3086043f5",
+    "publishedAt": "2024-11-12",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "40d67d1a602f9a",
+    "title": "DDos攻撃の主な攻撃手法のうち４つのネットワーク帯域を圧迫する攻撃について",
+    "url": "https://zenn.dev/takumi0706/articles/40d67d1a602f9a",
+    "publishedAt": "2024-11-11",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "ed8486c78e6460",
+    "title": "MyGPTsのActionsのカスタムしたら「Unable to load conversation undefined」と言われた。",
+    "url": "https://zenn.dev/takumi0706/articles/ed8486c78e6460",
+    "publishedAt": "2024-10-07",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "a6044db4f7b50d",
+    "title": "【YAPC::Hakodate 2024】学生かつスタッフとして参加してきた",
+    "url": "https://zenn.dev/takumi0706/articles/a6044db4f7b50d",
+    "publishedAt": "2024-10-06",
+    "likes": 6,
+    "type": "idea"
+  },
+  {
+    "id": "9f8d108814a8a6",
+    "title": "Mercari AI/LLM Hackthonに参加してみて",
+    "url": "https://zenn.dev/takumi0706/articles/9f8d108814a8a6",
+    "publishedAt": "2024-10-01",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "969d1f151ca99c",
+    "title": "生成AIについて、茶をしばきながら話してきた！",
+    "url": "https://zenn.dev/takumi0706/articles/969d1f151ca99c",
+    "publishedAt": "2024-09-11",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "c8115b3df47155",
+    "title": "Next.jsとShadcn/UIで作るモダンWebアプリケーション(Part1)",
+    "url": "https://zenn.dev/takumi0706/articles/c8115b3df47155",
+    "publishedAt": "2024-09-02",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "9a4d2e205d694a",
+    "title": "Next.jsとShadcn/UIで作るモダンWebアプリケーション(Part0)",
+    "url": "https://zenn.dev/takumi0706/articles/9a4d2e205d694a",
+    "publishedAt": "2024-09-02",
+    "likes": 0,
+    "type": "tech"
+  },
+  {
+    "id": "c360cbb9da21b5",
+    "title": "OpenAIのMyGPTsを用いてAI秘書？作ってみた",
+    "url": "https://zenn.dev/takumi0706/articles/c360cbb9da21b5",
+    "publishedAt": "2024-08-21",
+    "likes": 2,
+    "type": "tech"
+  },
+  {
+    "id": "6a2638036c64dc",
+    "title": "一周年のふんわりLTに踏み込んでみた！！",
+    "url": "https://zenn.dev/takumi0706/articles/6a2638036c64dc",
+    "publishedAt": "2024-08-13",
+    "likes": 6,
+    "type": "idea"
+  }
+]

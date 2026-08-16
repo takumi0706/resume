@@ -8,6 +8,7 @@
   },
   "scripts": {
     "fonts": "node scripts/subset-jp-font.mjs",
+    "zenn": "node scripts/fetch-zenn.mjs",
     "dev": "pnpm run fonts && astro dev",
     "build": "pnpm run fonts && astro build",
     "preview": "astro preview",

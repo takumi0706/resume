@@ -1,0 +1,194 @@
+---
+import { getCollection } from "astro:content";
+import Base from "@layouts/Base.astro";
+import Chip from "@components/Chip.astro";
+
+// 01 · Bento Grid
+// 大きさの違いがリズムを生む。カードを揃えない。
+//
+// タイルの大きさは usedIn の件数から機械的に決める。
+// 「重要度」を人が決めると、それは自己申告のレベル付けと同じものになる。
+//
+// Hallmark の既定はヒーローを中央揃えにするが、中央揃えの連続は anti-pattern
+// （Centred everything）であり、サイト全体も左寄せなので左寄せにする。
+
+const CATEGORY_ORDER = ["言語", "フレームワーク", "データ", "インフラ", "開発プロセス"] as const;
+
+const skills = await getCollection("skills");
+
+// 実績の件数が多い順。同数なら分類順。
+const ranked = [...skills].sort((a, b) => {
+  const byEvidence = b.data.usedIn.length - a.data.usedIn.length;
+  if (byEvidence !== 0) return byEvidence;
+  return (
+    CATEGORY_ORDER.indexOf(a.data.category) - CATEGORY_ORDER.indexOf(b.data.category)
+  );
+});
+
+const spanOf = (count: number): string => {
+  if (count >= 3) return "large";
+  if (count === 2) return "wide";
+  return "small";
+};
+
+const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.length, 0);
+---
+
+<Base
+  title="技術 — 小山田 卓生"
+  description="小山田卓生（@takumi0706）が実務・OSS・執筆で使ってきた技術の一覧。TypeScript、Go、Node.js、AWS など。"
+>
+  <article class="skills">
+    <div class="shell">
+      <section class="skills__hero">
+        <h1 class="skills__title">使ってきた技術</h1>
+        <p class="skills__lede">
+          「中級」「実務レベル」といった段階は書いていません。検証できないうえ、面接で必ず掘られるからです。代わりに、どこで使ったかだけを並べています。タイルの大きさは実績の件数です。
+        </p>
+        <Chip href="/resume/" label="業務の詳細は職務経歴書へ" />
+      </section>
+
+      <section class="bento">
+        {
+          ranked.map((skill) => (
+            <article class:list={["cell", `cell--${spanOf(skill.data.usedIn.length)}`]}>
+              <h2 class="cell__name">{skill.data.name}</h2>
+              <p class="cell__category">{skill.data.category}</p>
+              {skill.data.note && <p class="cell__note">{skill.data.note}</p>}
+              <ul class="cell__used">
+                {skill.data.usedIn.map((place) => (
+                  <li class="cell__place">{place}</li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
+      </section>
+
+      <p class="skills__foot tnum">
+        {skills.length}の技術 · {totalEvidence}件の実績
+      </p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .skills {
+    padding-block: var(--space-lg) var(--space-2xl);
+  }
+
+  /* ヒーローはビューポート全高にしない。内容の高さで置く。 */
+  .skills__hero {
+    padding-block-end: var(--space-xl);
+  }
+
+  .skills__title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-block-end: var(--space-sm);
+  }
+
+  .skills__lede {
+    max-inline-size: var(--measure-ja);
+    color: var(--color-ink-2);
+    margin-block-end: var(--space-md);
+  }
+
+  /* --- 格子 --------------------------------------------------------------
+   * 仕切りは一定の間隔だけ。罫線を引かない。格子そのものがリズムになる。 */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+
+  .cell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding: var(--space-md);
+    border: var(--rule-hair) solid var(--color-rule-2);
+    border-radius: var(--radius-md);
+    background-color: var(--color-paper-2);
+  }
+
+  .cell--large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .cell--wide {
+    grid-column: span 2;
+  }
+
+  .cell__name {
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  /* --text-xs (10.24px) は規約の下限ぎりぎりで実用に耐えないので使わない。
+   * サイト内の他のラベルと同じ --text-sm に揃える。 */
+  .cell__category {
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+  }
+
+  .cell__note {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    margin-block-start: var(--space-2xs);
+  }
+
+  .cell__used {
+    margin-block-start: auto;
+    padding-block-start: var(--space-sm);
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .cell__place {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    padding-inline-start: var(--space-sm);
+    position: relative;
+    /* 長い記事タイトルが1行に収まらないので折り返しを許す。 */
+    overflow-wrap: anywhere;
+  }
+
+  .cell__place::before {
+    content: "—";
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--color-muted);
+  }
+
+  .skills__foot {
+    margin-block-start: var(--space-lg);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  /* 60rem 以下: レイアウトのブレークポイント。4列 → 2列。 */
+  @media (width < 60rem) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cell--large {
+      grid-row: span 1;
+    }
+  }
+
+  /* 40rem 以下: 1列に畳む。大きさの差はここでは意味を持たない。 */
+  @media (width < 40rem) {
+    .bento {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cell--large,
+    .cell--wide {
+      grid-column: span 1;
+    }
+  }
+</style>

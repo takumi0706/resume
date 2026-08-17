@@ -1,6 +1,11 @@
 ---
 import Base from "@layouts/Base.astro";
 import { sections } from "@/config/site";
+import { splitLocale, localePath } from "@i18n/config";
+import { ui } from "@i18n/ui";
+
+const { locale } = splitLocale(Astro.url.pathname);
+const t = ui[locale];
 
 // 404。Astro は既定で生成しないので用意する。
 // wrangler.jsonc の not_found_handling: "404-page" がこれを返す。
@@ -8,31 +13,34 @@ import { sections } from "@/config/site";
 // 行き止まりにしない。サイドレールに加えて、本文にも行き先を並べる。
 ---
 
+{/* 404 には対応する言語版のページが無い。切替え先はその言語のトップにする。
+    ここを既定のままにすると /en/404/ という存在しないパスを指す。 */}
 <Base
-  title="ページが見つかりません — 小山田 卓生"
-  description="お探しのページは見つかりませんでした。"
+  title={t.notFoundTitle}
+  description={t.notFoundDescription}
   preloadDisplayWeight={false}
+  alternatePath="/"
 >
   <section class="notfound">
     <div class="shell">
       <p class="notfound__code tnum">404</p>
-      <h1 class="notfound__title">このページはありません。</h1>
-      <p class="notfound__lede">
-        URL が変わったか、もともと存在しないアドレスです。行き先は以下にあります。
-      </p>
+      <h1 class="notfound__title">{t.notFoundHeading}</h1>
+      <p class="notfound__lede">{t.notFoundLede}</p>
 
       <ul class="notfound__list">
         {
           sections.map((section) => (
             <li>
-              <a class="notfound__link" href={section.href}>
-                {section.label}
+              <a class="notfound__link" href={localePath(locale, section.path)}>
+                {t.nav[section.key]}
               </a>
             </li>
           ))
         }
         <li>
-          <a class="notfound__link" href="/">ホーム</a>
+          <a class="notfound__link" href={localePath(locale, "/")}>
+            {t.navHome}
+          </a>
         </li>
       </ul>
     </div>

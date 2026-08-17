@@ -27,6 +27,9 @@ export type SkillCategory =
   | "infra"
   | "protocol";
 
+/** サイト内のセクション。ラベルは言語ごとに辞書が持つ。 */
+export type SectionKey = "community" | "oss" | "resume" | "skill" | "blog";
+
 /** カンファレンスでの役割。 */
 export type CommunityRole = "chair" | "core" | "staff" | "dayof";
 
@@ -57,16 +60,9 @@ interface Strings {
   siteLinks: string;
 
   /* --- ナビゲーション ---------------------------------------------------- */
-  navCommunity: string;
-  navCommunityShort: string;
-  navOss: string;
-  navOssShort: string;
-  navResume: string;
-  navResumeShort: string;
-  navSkill: string;
-  navSkillShort: string;
-  navBlog: string;
-  navBlogShort: string;
+  nav: Record<SectionKey, string>;
+  /** サイドレール用の短いラベル。和文は字幅が広く、長いと折り返す（gate 49）。 */
+  navShort: Record<SectionKey, string>;
   navHome: string;
 
   /* --- 分類 -------------------------------------------------------------- */
@@ -169,16 +165,14 @@ const ja: Strings = {
   externalLinks: "外部リンク",
   siteLinks: "サイト内",
 
-  navCommunity: "コミュニティ",
-  navCommunityShort: "運営",
-  navOss: "OSS",
-  navOssShort: "OSS",
-  navResume: "職務経歴書",
-  navResumeShort: "経歴",
-  navSkill: "スキル",
-  navSkillShort: "技術",
-  navBlog: "執筆",
-  navBlogShort: "執筆",
+  nav: {
+    community: "コミュニティ",
+    oss: "OSS",
+    resume: "職務経歴書",
+    skill: "スキル",
+    blog: "執筆",
+  },
+  navShort: { community: "運営", oss: "OSS", resume: "経歴", skill: "技術", blog: "執筆" },
   navHome: "ホーム",
 
   employment: {
@@ -288,16 +282,20 @@ const en: Strings = {
   externalLinks: "Elsewhere",
   siteLinks: "This site",
 
-  navCommunity: "Community",
-  navCommunityShort: "Community",
-  navOss: "OSS",
-  navOssShort: "OSS",
-  navResume: "Résumé",
-  navResumeShort: "Résumé",
-  navSkill: "Skills",
-  navSkillShort: "Skills",
-  navBlog: "Writing",
-  navBlogShort: "Writing",
+  nav: {
+    community: "Community",
+    oss: "Open source",
+    resume: "Résumé",
+    skill: "Skills",
+    blog: "Writing",
+  },
+  navShort: {
+    community: "Community",
+    oss: "OSS",
+    resume: "Résumé",
+    skill: "Skills",
+    blog: "Writing",
+  },
   navHome: "Home",
 
   employment: {

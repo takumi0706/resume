@@ -9,6 +9,15 @@ import "@styles/tokens.css";
 import "@styles/base.css";
 import SiteNav from "@components/SiteNav.astro";
 import SiteFooter from "@components/SiteFooter.astro";
+import {
+  splitLocale,
+  localePath,
+  locales,
+  htmlLang,
+  ogLocale,
+  defaultLocale,
+} from "@i18n/config";
+import { ui } from "@i18n/ui";
 
 interface Props {
   title: string;
@@ -21,11 +30,31 @@ interface Props {
    * 警告を出す）。既定は true で、使わないページ側が明示的に false にする。
    */
   preloadDisplayWeight?: boolean;
+  /**
+   * 言語切替えと hreflang の行き先。既定はいま見ているページの対応する言語版。
+   * 404 のように対応する言語版が無いページだけが明示的に渡す。
+   */
+  alternatePath?: string;
 }
 
-const { title, description, preloadDisplayWeight = true } = Astro.props;
+const { title, description, preloadDisplayWeight = true, alternatePath } = Astro.props;
+
+const { locale, path: currentPath } = splitLocale(Astro.url.pathname);
+const path = alternatePath ?? currentPath;
+const t = ui[locale];
+
+// 和文フォントは日本語ページだけが要る。
+// 英語ページで先読みすると、使わない 100KB 超を落として捨てることになる。
+const needsJapaneseFont = locale === "ja";
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// 言語版の相互参照。x-default は既定（日本語）に向ける。
+const alternates = locales.map((other) => ({
+  hreflang: htmlLang[other],
+  href: new URL(localePath(other, path), Astro.site).href,
+}));
+const xDefault = new URL(localePath(defaultLocale, path), Astro.site).href;
 
 // OGP カードは scripts/build-og.mjs が dist/og/ に焼く。
 // ファイル名はここと同じ規則で付いている（"/" は index、"/resume/" は resume）。
@@ -34,7 +63,7 @@ const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang={htmlLang[locale]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -43,7 +72,7 @@ const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
     {/* 和文サブセットは LCP に効くので先読みする。公開パスが固定なので preload できる。
         ただし実際に使うウェイトだけを先読みする。 */}
     {
-      preloadDisplayWeight && (
+      needsJapaneseFont && preloadDisplayWeight && (
         <link
           rel="preload"
           href={fontPaths["600"]}
@@ -53,19 +82,30 @@ const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
         />
       )
     }
-    <link
-      rel="preload"
-      href={fontPaths["400"]}
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    {
+      needsJapaneseFont && (
+        <link
+          rel="preload"
+          href={fontPaths["400"]}
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
+      )
+    }
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="profile" />
-    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    {
+      locales
+        .filter((other) => other !== locale)
+        .map((other) => (
+          <meta property="og:locale:alternate" content={ogLocale[other]} />
+        ))
+    }
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     {/* 寸法を書くと、画像を取りに行く前に枠を確保できる。 */}
@@ -74,14 +114,19 @@ const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
     {/* title に氏名が入っているので、ここで足すと同じ名前が2回出る。 */}
     <meta property="og:image:alt" content={title} />
     <link rel="canonical" href={canonical} />
+    {/* 言語版の相互参照。片方向だけだと検索側が別ページとして扱う。 */}
+    {alternates.map((alternate) => (
+      <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={xDefault} />
     {/* 1200x630 の横長カードなので large を使う。
         以前は正方形のアイコンを出していたため summary にしていた。 */}
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
-    <a class="skip-link" href="#main">本文へスキップ</a>
+    <a class="skip-link" href="#main">{t.skipToContent}</a>
     <div class="page">
-      <SiteNav />
+      <SiteNav alternatePath={alternatePath} />
       <main class="page__main" id="main">
         <slot />
       </main>

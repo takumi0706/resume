@@ -1,0 +1,409 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "@layouts/Base.astro";
+import { formalContact, github, zenn } from "@/config/site";
+import Facts from "@components/Facts.astro";
+import type { Fact } from "@components/Facts.astro";
+import { splitLocale, localePath } from "@i18n/config";
+import { ui, fill } from "@i18n/ui";
+import { englishName } from "@i18n/names";
+import { yearMonth, fullDate, period as formatPeriod } from "@i18n/format";
+import { loadTranslations } from "@i18n/content";
+
+// 02 · Long Document
+// 仕切りは余白。罫線を引かない（トップページの太罫と対照させる）。
+// 見出しは本文の流れから立ち上がる短い語句。CTA は段落のなかのテキストリンク。
+
+// ロケールは URL から引く。/en/resume/ でも同じ実装が動く。
+const { locale } = splitLocale(Astro.url.pathname);
+const t = ui[locale];
+
+const tr = await loadTranslations(locale);
+
+const byDescending = (a: string, b: string): number => b.localeCompare(a);
+
+const period = (start: string, end: string | null): string =>
+  formatPeriod(locale, start, end, t.present);
+
+const work = await getCollection("work");
+const education = await getCollection("education");
+const awards = await getCollection("awards");
+const community = await getCollection("community");
+
+const workSections = await Promise.all(
+  work
+    .sort((a, b) => byDescending(a.data.start, b.data.start))
+    .map(async (entry) => {
+      // 英語版があればそちらの本文を出す。無ければ日本語の本文にはしない
+      // （英語ページに日本語の本文が混ざるくらいなら出さない方がよい）。
+      const overlay = tr.entry("work", entry.id);
+      const source = locale === "ja" ? entry : overlay;
+      const body = (source?.body ?? "").trim();
+      return {
+        data: entry.data,
+        company: locale === "ja" ? entry.data.company : englishName(entry.data.company),
+        title: tr.data("work", entry.id).title ?? entry.data.title,
+        // 本文が無い経歴がある。空の <div> を出すと余白だけが残るので、
+        // 本文が無いときは Content ごと持たせない。
+        Content: source && body.length > 0 ? (await render(source)).Content : null,
+      };
+    }),
+);
+
+const schools = education.sort((a, b) => byDescending(a.data.start, b.data.start));
+const honours = awards.sort((a, b) => byDescending(a.data.date, b.data.date));
+const communityCount = community.length;
+
+const current = work.find((entry) => entry.data.end === null && entry.data.employment === "fulltime");
+const latestSchool = schools.at(0);
+
+const profile: Fact[] = [
+  {
+    key: t.factName,
+    value: locale === "ja" ? t.nameJa : t.nameLatin,
+    sub: locale === "ja" ? t.nameReading : t.nameJa,
+  },
+  { key: t.factOccupation, value: t.role },
+];
+
+if (current) {
+  const overlay = tr.data("work", current.id);
+  profile.push({
+    key: t.factCurrentRole,
+    value: locale === "ja" ? current.data.company : englishName(current.data.company),
+    sub: overlay.title ?? current.data.title,
+  });
+  const summary = overlay.summary ?? current.data.summary;
+  if (summary) {
+    profile.push({ key: t.factDuty, value: summary });
+  }
+}
+
+if (latestSchool) {
+  const faculty =
+    tr.data("education", latestSchool.id).faculty ?? latestSchool.data.faculty ?? "";
+  profile.push({
+    key: t.factEducation,
+    value:
+      locale === "ja" ? latestSchool.data.school : englishName(latestSchool.data.school),
+    sub: fill(t.graduated, {
+      faculty,
+      date: yearMonth(locale, latestSchool.data.end),
+    }).trim(),
+    tnum: true,
+  });
+}
+
+profile.push({
+  key: t.factExperience,
+  value: fill(t.companyCount, { count: work.length }),
+  sub: t.experienceSince,
+  tnum: true,
+});
+---
+
+<Base title={t.resumeTitle} description={t.resumeDescription}>
+  <article class="doc">
+    <div class="shell">
+      <h1 class="doc__title">{t.resumeHeading}</h1>
+
+      {/* 冒頭は散文にしない。読まずに分かる形で置く。 */}
+      <Facts facts={profile} />
+
+      {/* 語順が言語で入れ替わるので、文は言語ごとに丸ごと持つ。
+          断片に割って組み立てると、どちらかの言語で必ず崩れる。 */}
+      <p class="doc__note">
+        {locale === "ja" ? (
+          <Fragment>
+            技術と並行して、カンファレンスの運営にも継続的に関わっています。
+            <a class="doc__link" href={localePath(locale, "/community/")}>
+              {fill(t.communityCountLink, { count: communityCount })}
+            </a>
+            です。
+          </Fragment>
+        ) : (
+          <Fragment>
+            Alongside the engineering work I keep helping to run conferences —
+            <a class="doc__link" href={localePath(locale, "/community/")}>
+              {fill(t.communityCountLink, { count: communityCount })}
+            </a>
+            so far.
+          </Fragment>
+        )}
+      </p>
+
+      <h2 class="doc__head">{t.headWork}</h2>
+
+      {
+        workSections.map((section) => (
+          <section class="job">
+            <h3 class="job__company">
+              {section.data.companyUrl ? (
+                <a class="doc__link" href={section.data.companyUrl} rel="noopener">
+                  {section.company}
+                </a>
+              ) : (
+                section.company
+              )}
+            </h3>
+            <p class="job__meta tnum">
+              <span>{period(section.data.start, section.data.end)}</span>
+              <span>{section.title}</span>
+              <span>{t.employment[section.data.employment]}</span>
+              {section.data.remote && <span>{t.remote}</span>}
+            </p>
+            {section.data.stack.length > 0 && (
+              <p class="job__stack">{section.data.stack.join(" · ")}</p>
+            )}
+            {section.Content && (
+              <div class="job__body">
+                <section.Content />
+              </div>
+            )}
+          </section>
+        ))
+      }
+
+      <h2 class="doc__head">{t.headEducation}</h2>
+
+      <ul class="plain">
+        {
+          schools.map((school) => {
+            const name =
+              locale === "ja" ? school.data.school : englishName(school.data.school);
+            const faculty = tr.data("education", school.id).faculty ?? school.data.faculty;
+            return (
+              <li class="record">
+                <span class="record__period tnum">
+                  {period(school.data.start, school.data.end)}
+                </span>
+                <span class="record__what">
+                  {school.data.schoolUrl ? (
+                    <a class="doc__link" href={school.data.schoolUrl} rel="noopener">
+                      {name}
+                    </a>
+                  ) : (
+                    name
+                  )}
+                  {faculty && <span class="record__sub">{faculty}</span>}
+                </span>
+              </li>
+            );
+          })
+        }
+      </ul>
+
+      <h2 class="doc__head">{t.headAwards}</h2>
+
+      <ul class="plain">
+        {
+          honours.map((honour) => {
+            const overlay = tr.data("awards", honour.id);
+            const work = overlay.work ?? honour.data.work;
+            const team = overlay.team ?? honour.data.team;
+            return (
+              <li class="record">
+                <span class="record__period tnum">{fullDate(locale, honour.data.date)}</span>
+                <span class="record__what">
+                  {overlay.event ?? honour.data.event}
+                  {locale === "ja" ? "　" : " · "}
+                  {overlay.award ?? honour.data.award}
+                  {work && (
+                    <span class="record__sub">
+                      {fill(t.awardWork, { work })}
+                      {team && fill(t.awardTeam, { team })}
+                    </span>
+                  )}
+                </span>
+              </li>
+            );
+          })
+        }
+      </ul>
+
+      <h2 class="doc__head">{t.headContact}</h2>
+
+      {/* ここも語順が入れ替わるので言語ごとに文を持つ。
+          URL は src/config/site.ts が唯一の情報源なので、散文ファイルには出さない。 */}
+      <p>
+        {locale === "ja" ? (
+          <Fragment>
+            ソフトウェアの設計・開発、業務アプリケーションの内製化支援、AI・LLM
+            の組み込みについてのご相談を受け付けています。
+            <a class="doc__link" href={formalContact.href} rel={formalContact.rel}>
+              {formalContact.label}
+            </a>
+            からご連絡ください。作ったものは
+            <a class="doc__link" href={github.href} rel={github.rel}>
+              {github.label}
+            </a>
+            に、書いたものは
+            <a class="doc__link" href={zenn.href} rel={zenn.rel}>
+              {zenn.label}
+            </a>
+            にあります。
+          </Fragment>
+        ) : (
+          <Fragment>
+            I am open to conversations about software design and development, bringing
+            business applications in house, and building AI and LLM features. Reach me on
+            <a class="doc__link" href={formalContact.href} rel={formalContact.rel}>
+              {formalContact.label}
+            </a>
+            . What I have built is on
+            <a class="doc__link" href={github.href} rel={github.rel}>
+              {github.label}
+            </a>
+            , and what I have written is on
+            <a class="doc__link" href={zenn.href} rel={zenn.rel}>
+              {zenn.label}
+            </a>
+            .
+          </Fragment>
+        )}
+      </p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  /* --- 文書全体 ---------------------------------------------------------
+   * Long Document は罫線を引かない。仕切りは余白そのもの。 */
+  .doc {
+    padding-block: var(--space-lg) var(--space-2xl);
+  }
+
+  .doc__title {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    margin-block-end: var(--space-lg);
+  }
+
+  .doc__note {
+    margin-block-start: var(--space-md);
+    color: var(--color-ink-2);
+  }
+
+  .doc :global(p) {
+    max-inline-size: var(--measure-ja);
+  }
+
+  /* 見出しは本文の流れから立ち上がる。上に大きく空け、下は詰める。 */
+  .doc__head {
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    margin-block: var(--space-2xl) var(--space-md);
+  }
+
+  .doc__link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-muted);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .doc__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .doc__link:active {
+    color: var(--color-ink-2);
+  }
+
+  /* --- 各社 ------------------------------------------------------------- */
+  .job {
+    margin-block-end: var(--space-xl);
+  }
+
+  .job__company {
+    font-size: var(--text-md);
+    font-weight: 600;
+    margin-block-end: var(--space-3xs);
+  }
+
+  .job__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-block-end: var(--space-2xs);
+  }
+
+  /* 区切りは中黒。欧文サイトの pipe や slash ではなく和文の約物を使う。 */
+  .job__meta span + span::before {
+    content: "·";
+    margin-inline-end: var(--space-2xs);
+  }
+
+  .job__stack {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    margin-block-end: var(--space-sm);
+  }
+
+  /* Markdown から描画される本文はスコープ付きスタイルが当たらないので :global で指定する。 */
+  .job__body :global(p) {
+    margin-block-end: var(--space-2xs);
+  }
+
+  .job__body :global(ul) {
+    max-inline-size: var(--measure-ja);
+  }
+
+  .job__body :global(li) {
+    position: relative;
+    padding-inline-start: var(--space-sm);
+  }
+
+  .job__body :global(li)::before {
+    content: "—";
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--color-muted);
+  }
+
+  /* --- 学歴・受賞 -------------------------------------------------------- */
+  .plain {
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .record {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-sm);
+    align-items: baseline;
+  }
+
+  .record__period {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  .record__sub {
+    display: block;
+    color: var(--color-ink-2);
+    font-size: var(--text-sm);
+  }
+
+  @media (width < 40rem) {
+    .record {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3xs);
+    }
+
+    .doc__link {
+      /* 44px のタップ領域は本文中のリンクには適用しない。行間が壊れるため。
+       * 代わりに下線を太くして触れる面積を稼ぐ。 */
+      text-decoration-thickness: 2px;
+    }
+  }
+</style>

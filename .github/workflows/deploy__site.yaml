@@ -60,6 +60,11 @@ jobs:
       - name: Check internal links
         run: pnpm run check:links
 
+      # 訳が無いときは日本語にフォールバックするので、英語ページだけが日本語のまま
+      # 出ても日本語ページを見ている限り気づけない。ここで落とす。
+      - name: Check translations
+        run: pnpm run check:i18n
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:

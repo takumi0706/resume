@@ -1,0 +1,194 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "@layouts/Base.astro";
+import { communityContact } from "@/config/site";
+import { splitLocale } from "@i18n/config";
+import { ui } from "@i18n/ui";
+import { englishName } from "@i18n/names";
+import { yearMonth } from "@i18n/format";
+import { loadProse } from "@i18n/content";
+
+// 12 · Letter
+// 一人称の、書かれたもの。ボタンはフォールドに置かない。
+//
+// Hallmark の既定は「セリフ体イタリックの呼びかけ」だが、見出しのイタリックは
+// 全体で禁止（gate 38a）、かつ modern-minimal はサンセリフ通しなのでローマン体にする。
+// 逸脱の記録は design.md にある。
+//
+// 本文に第三者の実名を書かない。「紹介された」「引き継いだ」はいずれも相手の行動であり、
+// 本人の許諾なく公開の場に書くべきではない。
+// 前任者がなぜ引き継いだのかにも触れない。他人の内心は本人にしか語れない。
+
+const { locale } = splitLocale(Astro.url.pathname);
+const t = ui[locale];
+
+const byDescending = (a: string, b: string): number => b.localeCompare(a);
+
+const community = await getCollection("community");
+const record = community.sort((a, b) => byDescending(a.data.date, b.data.date));
+
+// 本文は src/content/prose/community.md と community.en.md。
+// 複数段落の散文を辞書に入れると、文を断片に割ることになって語順が壊れる。
+const essay = await loadProse(locale, "community");
+const Essay = essay ? (await render(essay)).Content : null;
+---
+
+<Base title={t.communityTitle} description={t.communityDescription}>
+  <article class="letter">
+    <div class="shell">
+      <h1 class="letter__salutation">{t.communityHeading}</h1>
+
+      {/* 記録を先に出す。Letter の「呼びかけで始まる」形は崩れるが、
+          読まないと実績に届かない構成の方が問題。逸脱は design.md に記録。 */}
+      <ul class="record">
+        {
+          record.map((entry) => (
+            <li class="record__item">
+              <span class="record__date tnum">
+                {yearMonth(locale, entry.data.date.slice(0, 7))}
+              </span>
+              <span class="record__event">
+                {entry.data.url ? (
+                  <a class="record__link" href={entry.data.url} rel="noopener">
+                    {entry.data.event}
+                  </a>
+                ) : (
+                  entry.data.event
+                )}
+                {entry.data.venue && (
+                  <span class="record__venue">
+                    {locale === "ja" ? entry.data.venue : englishName(entry.data.venue)}
+                  </span>
+                )}
+              </span>
+              <span class="record__role">{t.communityRole[entry.data.role]}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2 class="letter__head">{t.communityWhyHead}</h2>
+
+      <div class="letter__body">{Essay && <Essay />}</div>
+
+      <p class="letter__signoff">
+        {t.communitySignoff}
+        <a class="record__link" href={communityContact.href} rel={communityContact.rel}>
+          {t.communitySignoffLink}
+        </a>
+      </p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .letter {
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  /* 呼びかけ。本文の 1.5〜2 倍。イタリックにはしない（gate 38a）。 */
+  .letter__salutation {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-block-end: var(--space-lg);
+  }
+
+  /* 仕切りは段落の余白だけ。罫線を引かない。 */
+  .letter__body :global(p) {
+    max-inline-size: var(--measure-ja);
+  }
+
+  .letter__body :global(p + p) {
+    margin-block-start: var(--space-md);
+  }
+
+  /* 区切りは Markdown 本文の中に生の HTML で置いている。
+     `* * *` をそのまま書くと <hr> になり、元の意匠（字間を開けた三つ星）が失われる。
+     Markdown から来た要素には scoped CSS の印が付かないので :global が要る。 */
+  .letter__body :global(.letter__separator) {
+    color: var(--color-muted);
+    letter-spacing: 0.4em;
+    margin-block: var(--space-lg) var(--space-lg);
+  }
+
+  .letter__head {
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    margin-block: var(--space-2xl) var(--space-md);
+  }
+
+  /* --- 記録 -------------------------------------------------------------- */
+  .record {
+    display: grid;
+    gap: var(--space-md);
+    /* 幅いっぱいに広げない。役割列が本文から離れて読みにくくなる。 */
+    max-inline-size: 46rem;
+  }
+
+  .record__item {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr) 8rem;
+    gap: var(--space-sm);
+    align-items: baseline;
+  }
+
+  .record__date {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  .record__event {
+    font-weight: 500;
+  }
+
+  .record__venue {
+    display: block;
+    font-weight: 400;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .record__role {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+
+  .record__link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-muted);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .record__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .record__link:active {
+    color: var(--color-ink-2);
+  }
+
+  /* 署名は手紙の締め。ボタンではなく本文中のリンクで閉じる。 */
+  .letter__signoff {
+    margin-block-start: var(--space-2xl);
+    max-inline-size: var(--measure-ja);
+    color: var(--color-ink-2);
+  }
+
+  @media (width < 40rem) {
+    .record__item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3xs);
+    }
+
+    .record__role {
+      color: var(--color-muted);
+    }
+  }
+</style>

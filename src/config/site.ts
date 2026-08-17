@@ -5,10 +5,10 @@
  * 追加・変更はこのファイルだけで完結させる。
  */
 
+import type { SectionKey } from "@i18n/ui";
+
 export interface Link {
   label: string;
-  /** サイドレール用の短いラベル。和文は字幅が広く、長いと折り返す。 */
-  short?: string;
   href: string;
   /** 外部リンクは rel を付ける。self 参照のプロフィールは me も付ける。 */
   rel?: string;
@@ -20,13 +20,23 @@ export interface Link {
   icon?: string;
 }
 
-/** サイト内のセクション。フッターの目次に使う。 */
-export const sections: Link[] = [
-  { label: "コミュニティ", short: "運営", href: "/community/" },
-  { label: "OSS", short: "OSS", href: "/oss/" },
-  { label: "職務経歴書", short: "経歴", href: "/resume/" },
-  { label: "スキル", short: "技術", href: "/skill/" },
-  { label: "執筆", short: "執筆", href: "/blog/" },
+/**
+ * サイト内のセクション。サイドレールとフッターの目次に使う。
+ *
+ * ラベルはここに持たない。言語ごとに変わるので src/i18n/ui.ts の nav / navShort が持つ。
+ * path も言語を含まない素の形で持ち、localePath() で /en/ を付ける。
+ */
+export interface Section {
+  key: SectionKey;
+  path: string;
+}
+
+export const sections: Section[] = [
+  { key: "community", path: "/community/" },
+  { key: "oss", path: "/oss/" },
+  { key: "resume", path: "/resume/" },
+  { key: "skill", path: "/skill/" },
+  { key: "blog", path: "/blog/" },
 ];
 
 export const github: Link = {

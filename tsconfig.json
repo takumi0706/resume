@@ -24,6 +24,9 @@
       ],
       "@i18n/*": [
         "src/i18n/*"
+      ],
+      "@views/*": [
+        "src/page-views/*"
       ]
     }
   }

@@ -8,25 +8,30 @@
 
 import { sections, elsewhere } from "@/config/site";
 import BrandIcon from "@components/BrandIcon.astro";
+import { splitLocale, localePath } from "@i18n/config";
+import { ui } from "@i18n/ui";
+
+const { locale } = splitLocale(Astro.url.pathname);
+const t = ui[locale];
 ---
 
 <footer class="site-footer">
   <div class="shell">
     <hr class="rule-hair" />
     <div class="site-footer__row">
-      <nav class="site-footer__links" aria-label="サイト内">
+      <nav class="site-footer__links" aria-label={t.siteLinks}>
         {
           sections.map((item) => (
             <span class="site-footer__item">
-              <a class="site-footer__link" href={item.href}>
-                <span class="site-footer__label">{item.label}</span>
+              <a class="site-footer__link" href={localePath(locale, item.path)}>
+                <span class="site-footer__label">{t.nav[item.key]}</span>
               </a>
             </span>
           ))
         }
       </nav>
 
-      <nav class="site-footer__links" aria-label="外部リンク">
+      <nav class="site-footer__links" aria-label={t.externalLinks}>
         {
           elsewhere.map((item) => (
             <span class="site-footer__item">

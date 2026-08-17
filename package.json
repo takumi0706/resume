@@ -15,9 +15,10 @@
     "check": "pnpm run fonts && astro check",
     "astro": "astro",
     "check:links": "node scripts/check-links.mjs",
-    "ci": "pnpm run check && pnpm run build && pnpm run check:links",
+    "ci": "pnpm run check && pnpm run build && pnpm run check:links && pnpm run check:i18n",
     "deploy": "pnpm run ci && wrangler deploy",
-    "og": "node scripts/build-og.mjs"
+    "og": "node scripts/build-og.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
     "astro": "^7.2.2"

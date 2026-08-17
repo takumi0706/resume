@@ -23,6 +23,15 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      # environment を宣言すると GitHub が Deployment オブジェクトを作り、
+      # リポジトリのサイドバーに Deployments カードとデプロイ履歴が出る。
+      # cloudflare/wrangler-action はこれを自前では作らない。
+      deployments: write
+
+    # 独自ドメインを取ったら url を差し替える。
+    environment:
+      name: production
+      url: https://takumi0706.ganndamu0706.workers.dev
 
     steps:
       - name: Checkout

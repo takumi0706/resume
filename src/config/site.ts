@@ -39,18 +39,15 @@ export const zenn: Link = {
   rel: "me noopener",
 };
 
-/**
- * LinkedIn。カスタム URL に変更後に有効化する。
- *
- * 自動生成の URL（/in/卓生-小山田-915745351）は日本語がパーセントエンコード
- * されて読めないので、設定でカスタム URL にしてから載せる。
- */
-export const linkedin: Link | null = null;
+export const linkedin: Link = {
+  label: "LinkedIn",
+  // 末尾スラッシュ付きは 301 で落ちるので正規形で持つ。
+  href: "https://www.linkedin.com/in/takumi-oyamada",
+  rel: "me noopener",
+};
 
-/** フッターに並べる外部プロフィール。 */
-export const elsewhere: Link[] = [github, x, zenn, linkedin].filter(
-  (link): link is Link => link !== null,
-);
+/** フッターに並べる外部プロフィール。身元と成果物に近い順。 */
+export const elsewhere: Link[] = [github, linkedin, x, zenn];
 
 /**
  * 連絡先はページごとに出し分ける。相手が居る場所が違うため。
@@ -60,5 +57,5 @@ export const elsewhere: Link[] = [github, x, zenn, linkedin].filter(
  * - community: カンファレンス運営者からの声かけ。この層は LinkedIn に居ない。
  *   ここを LinkedIn にすると誰からも声がかからなくなる。
  */
-export const formalContact: Link = linkedin ?? x;
+export const formalContact: Link = linkedin;
 export const communityContact: Link = x;

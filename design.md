@@ -67,7 +67,7 @@
 
 | 場所 | 窓口 | 理由 |
 |---|---|---|
-| `/resume/` の連絡先・ナビ CTA | `formalContact`（LinkedIn 予定） | 採用担当は LinkedIn に常時ログインしている。正式な打診に向く |
+| `/resume/` の連絡先・ナビ CTA | `formalContact`（LinkedIn） | 採用担当は LinkedIn に常時ログインしている。正式な打診に向く |
 | `/community/` の締め | `communityContact`（X） | カンファレンス運営者は LinkedIn に居ない。ここを LinkedIn にすると誰からも声がかからない |
 | フッター | `elsewhere` に全部並べる | 目次なので網羅する |
 

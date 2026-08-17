@@ -37,16 +37,18 @@ const oss = await getCollection("oss");
 const work = await getCollection("work");
 const awards = await getCollection("awards");
 
+// 群の並びはレール（src/config/site.ts の sections）と揃える。
+// 同じページ内に順序が2つあると、どちらが優先なのか読み手に伝わらない。
 const groups: IndexGroup[] = [
   {
-    group: t.groupCommunity,
-    rows: community
-      .sort((a, b) => byDescending(a.data.date, b.data.date))
+    group: t.groupWork,
+    rows: work
+      .sort((a, b) => byDescending(a.data.start, b.data.start))
       .map((entry) => ({
-        year: yearOf(entry.data.date),
-        what: entry.data.event,
-        href: entry.data.url ?? null,
-        role: t.communityRole[entry.data.role],
+        year: yearOf(entry.data.start),
+        what: locale === "ja" ? entry.data.company : englishName(entry.data.company),
+        href: entry.data.companyUrl ?? null,
+        role: tr.data("work", entry.id).title ?? entry.data.title,
       })),
   },
   {
@@ -64,14 +66,14 @@ const groups: IndexGroup[] = [
       })),
   },
   {
-    group: t.groupWork,
-    rows: work
-      .sort((a, b) => byDescending(a.data.start, b.data.start))
+    group: t.groupCommunity,
+    rows: community
+      .sort((a, b) => byDescending(a.data.date, b.data.date))
       .map((entry) => ({
-        year: yearOf(entry.data.start),
-        what: locale === "ja" ? entry.data.company : englishName(entry.data.company),
-        href: entry.data.companyUrl ?? null,
-        role: tr.data("work", entry.id).title ?? entry.data.title,
+        year: yearOf(entry.data.date),
+        what: entry.data.event,
+        href: entry.data.url ?? null,
+        role: t.communityRole[entry.data.role],
       })),
   },
   {

@@ -31,11 +31,20 @@ export interface Section {
   path: string;
 }
 
+/**
+ * 並び順は採用担当が読む順。
+ * 何をしてきたか → 何ができるか → コードの証拠 → 場づくり → 書いたもの。
+ *
+ * 以前は運営・OSS・経歴・技術・執筆で、経歴が5つ中3番目だった。
+ * トップの CTA が「職務経歴書を読む」でサイトの第一目的も採用なのに、
+ * 一番行ってほしい先がレールの真ん中にあり、優先順位が食い違っていた。
+ * サイドレールは上から読まれる。先頭は最も行ってほしい先に使う。
+ */
 export const sections: Section[] = [
-  { key: "community", path: "/community/" },
-  { key: "oss", path: "/oss/" },
   { key: "resume", path: "/resume/" },
   { key: "skill", path: "/skill/" },
+  { key: "oss", path: "/oss/" },
+  { key: "community", path: "/community/" },
   { key: "blog", path: "/blog/" },
 ];
 

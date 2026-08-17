@@ -1,0 +1,55 @@
+---
+import * as simpleIcons from "simple-icons";
+
+// ブランドアイコン。
+//
+// gate 30 は「複数のアイコンライブラリを混在させない」「絵文字をアイコン代わりに
+// しない」。simple-icons 1つに統一する。
+//
+// ビルド時に SVG のパスを埋め込むので、外部への通信は発生しない。
+//
+// 色はブランドカラーを使わず currentColor にする。このサイトはモノクロ厳密で、
+// ここだけ有彩色が入るとアクセントの規律（gate 23）が崩れる。
+//
+// LinkedIn は入れられない。第三者によるロゴ使用に事前承認を求めており、
+// simple-icons も v14.0.0 で削除して以降は追加しない方針。
+
+interface Props {
+  slug: string;
+  size?: number;
+}
+
+const { slug, size = 16 } = Astro.props;
+
+const key = `si${slug.charAt(0).toUpperCase()}${slug.slice(1)}`;
+const icon: unknown = Reflect.get(simpleIcons, key);
+
+const path =
+  typeof icon === "object" && icon !== null && "path" in icon && typeof icon.path === "string"
+    ? icon.path
+    : null;
+---
+
+{
+  path && (
+    <svg
+      class="brand-icon"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d={path} />
+    </svg>
+  )
+}
+
+<style>
+  .brand-icon {
+    /* テキストの視覚的な中心に合わせる。ベースラインに揃えると沈んで見える。 */
+    vertical-align: -0.15em;
+    flex-shrink: 0;
+  }
+</style>

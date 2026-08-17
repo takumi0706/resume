@@ -7,6 +7,7 @@
 // anti-patterns.md が "The AI footer" として名指ししている形。
 
 import { sections, elsewhere } from "@/config/site";
+import BrandIcon from "@components/BrandIcon.astro";
 ---
 
 <footer class="site-footer">
@@ -27,6 +28,7 @@ import { sections, elsewhere } from "@/config/site";
         {
           elsewhere.map((item) => (
             <a class="site-footer__link" href={item.href} rel={item.rel}>
+              {item.icon && <BrandIcon slug={item.icon} />}
               {item.label}
             </a>
           ))
@@ -74,6 +76,9 @@ import { sections, elsewhere } from "@/config/site";
   }
 
   .site-footer__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
     color: var(--color-ink-2);
     white-space: nowrap;
     text-decoration: underline;

@@ -106,7 +106,9 @@ const ogImage = new URL("/icon.png", Astro.site).href;
       grid-template-areas:
         "rail main"
         "rail footer";
-      align-items: start;
+      /* align-items: start にすると .rail の高さが中身の分（100dvh）しか
+         なくなり、そこを通り過ぎた時点で内側の sticky が効かなくなる。
+         既定の stretch のまま、レールをページ全高に伸ばす。 */
     }
 
     /* 本文は中央寄せにしない。レールとの間に死んだ余白ができるため、

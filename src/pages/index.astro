@@ -88,9 +88,7 @@ const upcoming = community
 const jpDate = (date: string): string =>
   date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1年$2月$3日");
 
-const facts: Fact[] = [
-  { key: "氏名", value: "小山田 卓生", sub: "おやまだ たくみ" },
-];
+const facts: Fact[] = [];
 
 if (current) {
   facts.push({ key: "現職", value: current.data.company, sub: current.data.title });
@@ -114,10 +112,14 @@ if (upcoming) {
   title="小山田 卓生 — Takumi Oyamada"
   description="小山田卓生（@takumi0706）のポートフォリオ。LINEヤフー株式会社のソフトウェアエンジニア。Hono Conference in Tokyo 2026 実行委員長。"
 >
-  {/* H1 · Marquee — knobs: size=xl, alignment=left-bias, underlay=rule-below */}
+  {/* H1 · Marquee — knobs: size=xxl, alignment=left-bias, underlay=rule-below
+      Marquee Hero は本来サブヘッドを置かない形だが、個人サイトの看板として
+      名前・読み・ハンドルの3行を出す。参照した shunsock/resume と同じ構成。 */}
   <section class="hero">
     <div class="shell">
-      <h1 class="hero__display">利他主義のサーバーサイドエンジニア</h1>
+      <h1 class="hero__display">Takumi Oyamada</h1>
+      <p class="hero__name">小山田 卓生</p>
+      <p class="hero__handle">also known as @takumi0706</p>
     </div>
   </section>
 

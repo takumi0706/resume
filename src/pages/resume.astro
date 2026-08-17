@@ -29,6 +29,8 @@ const workSections = await Promise.all(
     .sort((a, b) => byDescending(a.data.start, b.data.start))
     .map(async (entry) => ({
       data: entry.data,
+      // 本文が無い経歴がある。空の <div> を出すと余白だけが残る。
+      hasBody: (entry.body ?? "").trim().length > 0,
       Content: (await render(entry)).Content,
     })),
 );
@@ -47,7 +49,9 @@ const profile: Fact[] = [
 
 if (current) {
   profile.push({ key: "現職", value: current.data.company, sub: current.data.title });
-  profile.push({ key: "担当", value: current.data.summary });
+  if (current.data.summary) {
+    profile.push({ key: "担当", value: current.data.summary });
+  }
 }
 
 if (latestSchool) {
@@ -101,9 +105,11 @@ profile.push({ key: "実務", value: `${work.length}社`, sub: "2024年10月か�
             {section.data.stack.length > 0 && (
               <p class="job__stack">{section.data.stack.join(" · ")}</p>
             )}
-            <div class="job__body">
-              <section.Content />
-            </div>
+            {section.hasBody && (
+              <div class="job__body">
+                <section.Content />
+              </div>
+            )}
           </section>
         ))
       }

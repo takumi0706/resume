@@ -25,7 +25,9 @@ const work = defineCollection({
     end: yearMonth.nullable(),
     remote: z.boolean().default(false),
     stack: z.array(z.string()).default([]),
-    summary: z.string(),
+    /** 「担当」として出す一文。現職の要約にのみ使う。
+     *  書けることが職種名の言い換えしかない経歴では省く。空文字で埋めない。 */
+    summary: z.string().optional(),
   }),
 });
 

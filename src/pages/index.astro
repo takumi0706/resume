@@ -92,7 +92,9 @@ const facts: Fact[] = [];
 
 if (current) {
   facts.push({ key: "現職", value: current.data.company, sub: current.data.title });
-  facts.push({ key: "担当", value: current.data.summary });
+  if (current.data.summary) {
+    facts.push({ key: "担当", value: current.data.summary });
+  }
   if (current.data.stack.length > 0) {
     facts.push({ key: "技術", value: current.data.stack.join(" · ") });
   }

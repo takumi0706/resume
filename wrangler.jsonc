@@ -1,0 +1,30 @@
+{
+  // Cloudflare Workers (Static Assets) へのデプロイ設定。
+  //
+  // Cloudflare Pages ではなく Workers を使う理由:
+  //   2026年3月時点で Workers は静的アセット・SSR・カスタムドメインのすべてで
+  //   Pages と機能同等に達しており、以降の投資は Workers に集中している。
+  //   Pages は非推奨ではないが新規プロジェクトは Workers から始めるのが公式の推奨。
+  //   将来 API や OGP の動的生成を足すときも同じデプロイに載せられる。
+  //
+  // main を書いていないのは、現時点で Worker スクリプトが不要なため。
+  // 静的アセットだけならディレクトリ指定だけで配信される。
+
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "takumi0706",
+  "compatibility_date": "2026-08-17",
+
+  "assets": {
+    "directory": "./dist",
+    // Astro は build.format: "directory" で /resume/ → dist/resume/index.html を出す。
+    // auto-trailing-slash が既定でこれを解決する。
+    "html_handling": "auto-trailing-slash",
+    // 存在しないパスは 404.html を 404 ステータスで返す。
+    // SPA ではないので single-page-application にはしない。
+    "not_found_handling": "404-page"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

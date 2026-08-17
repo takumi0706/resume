@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # 和文サブセットはビルド生成物（pnpm run fonts で再生成される）
 public/fonts/*.woff2
+
+# Cloudflare
+.wrangler/

@@ -1,0 +1,93 @@
+---
+import Base from "@layouts/Base.astro";
+import { sections } from "@/config/site";
+
+// 404。Astro は既定で生成しないので用意する。
+// wrangler.jsonc の not_found_handling: "404-page" がこれを返す。
+//
+// 行き止まりにしない。サイドレールに加えて、本文にも行き先を並べる。
+---
+
+<Base
+  title="ページが見つかりません — 小山田 卓生"
+  description="お探しのページは見つかりませんでした。"
+  preloadDisplayWeight={false}
+>
+  <section class="notfound">
+    <div class="shell">
+      <p class="notfound__code tnum">404</p>
+      <h1 class="notfound__title">このページはありません。</h1>
+      <p class="notfound__lede">
+        URL が変わったか、もともと存在しないアドレスです。行き先は以下にあります。
+      </p>
+
+      <ul class="notfound__list">
+        {
+          sections.map((section) => (
+            <li>
+              <a class="notfound__link" href={section.href}>
+                {section.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="notfound__link" href="/">ホーム</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  .notfound__code {
+    font-family: var(--font-outlier);
+    font-size: var(--text-lg);
+    color: var(--color-muted);
+  }
+
+  .notfound__title {
+    font-size: var(--text-display-ja);
+    font-weight: 600;
+    margin-block: var(--space-2xs) var(--space-md);
+  }
+
+  .notfound__lede {
+    max-inline-size: var(--measure-ja);
+    color: var(--color-ink-2);
+    margin-block-end: var(--space-lg);
+  }
+
+  .notfound__list {
+    display: grid;
+    gap: var(--space-2xs);
+    max-inline-size: 20rem;
+  }
+
+  .notfound__link {
+    display: inline-block;
+    min-block-size: 44px;
+    padding-block: var(--space-3xs);
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    white-space: nowrap;
+    transition:
+      text-decoration-thickness var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .notfound__link:hover {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-ink);
+  }
+
+  .notfound__link:active {
+    color: var(--color-ink-2);
+  }
+</style>

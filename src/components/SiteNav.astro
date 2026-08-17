@@ -57,6 +57,19 @@ const isCurrent = (target: string): boolean => normalise(path) === normalise(tar
           </li>
         ))
       }
+
+      {/* モバイル用の連絡導線。
+          下の .rail__contact は 60rem 未満で消える（レール下端の固定表示が
+          狭い画面では場所を食うため）。だがそこで導線がゼロになるのは誤りだった。
+          採用担当は LinkedIn のアプリ内ブラウザ＝モバイル幅で開くので、
+          最も濃い流入で一番大事な導線が落ちていた。
+          リンク先の情報源は formalContact ひとつのまま、描画だけ2箇所にする。 */}
+      <li class="rail__list-contact">
+        <a class="rail__link" href={formalContact.href} rel={formalContact.rel}>
+          {t.railContact}
+          <span aria-hidden="true">→</span>
+        </a>
+      </li>
     </ul>
 
     <a class="rail__contact" href={formalContact.href} rel={formalContact.rel}>
@@ -160,6 +173,14 @@ const isCurrent = (target: string): boolean => normalise(path) === normalise(tar
 
   .rail__contact:hover {
     color: var(--color-ink);
+  }
+
+  /* 60rem 以上: 連絡導線はレール下端の .rail__contact が担うので、
+     ナビ列の末尾に足したほうは出さない。両方出すと同じリンクが2回並ぶ。 */
+  @media (width >= 60rem) {
+    .rail__list-contact {
+      display: none;
+    }
   }
 
   /* 60rem 以上: 左端に固定して常時見せる。 */

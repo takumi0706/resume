@@ -134,7 +134,7 @@ const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
       <main class="page__main" id="main">
         <slot />
       </main>
-      <SiteFooter />
+      <SiteFooter alternatePath={alternatePath} />
     </div>
   </body>
 </html>

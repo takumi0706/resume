@@ -58,6 +58,8 @@ interface Strings {
   remote: string;
   externalLinks: string;
   siteLinks: string;
+  /** フッターの言語切替えの aria-label。 */
+  language: string;
 
   /* --- ナビゲーション ---------------------------------------------------- */
   nav: Record<SectionKey, string>;
@@ -164,6 +166,7 @@ const ja: Strings = {
   remote: "リモート",
   externalLinks: "外部リンク",
   siteLinks: "サイト内",
+  language: "言語",
 
   nav: {
     community: "コミュニティ",
@@ -281,6 +284,7 @@ const en: Strings = {
   remote: "Remote",
   externalLinks: "Elsewhere",
   siteLinks: "This site",
+  language: "Language",
 
   nav: {
     community: "Community",

@@ -8,11 +8,32 @@
 
 import { sections, elsewhere } from "@/config/site";
 import BrandIcon from "@components/BrandIcon.astro";
-import { splitLocale, localePath } from "@i18n/config";
+import { splitLocale, localePath, locales, localeLabel } from "@i18n/config";
 import { ui } from "@i18n/ui";
 
-const { locale } = splitLocale(Astro.url.pathname);
+interface Props {
+  /**
+   * 言語切替えの行き先。既定はいま見ているページの対応する言語版。
+   * 404 のように対応する言語版が無いページだけが明示的に渡す。
+   * 渡さないと 404 のフッターが /en/404/ という存在しないパスを指す。
+   */
+  alternatePath?: string;
+}
+
+const { alternatePath } = Astro.props;
+
+const { locale, path } = splitLocale(Astro.url.pathname);
 const t = ui[locale];
+
+// ページ上部の LocaleSwitch は絶対配置なので、読み終えた位置からは見えない。
+// 切り替えるためだけに先頭へ戻らせないよう、閉じの帯にも1本置く。
+const alternates = locales
+  .filter((other) => other !== locale)
+  .map((other) => ({
+    label: localeLabel[other],
+    href: localePath(other, alternatePath ?? path),
+    lang: other,
+  }));
 ---
 
 <footer class="site-footer">
@@ -38,6 +59,23 @@ const t = ui[locale];
               <a class="site-footer__link" href={item.href} rel={item.rel}>
                 {item.icon && <BrandIcon slug={item.icon} />}
                 <span class="site-footer__label">{item.label}</span>
+              </a>
+            </span>
+          ))
+        }
+      </nav>
+
+      <nav class="site-footer__links" aria-label={t.language}>
+        {
+          alternates.map((alternate) => (
+            <span class="site-footer__item">
+              <a
+                class="site-footer__link"
+                href={alternate.href}
+                hreflang={alternate.lang}
+                lang={alternate.lang}
+              >
+                <span class="site-footer__label">{alternate.label}</span>
               </a>
             </span>
           ))

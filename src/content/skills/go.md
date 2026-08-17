@@ -1,6 +1,6 @@
 ---
 name: Go
-category: 言語
+category: language
 usedIn:
   - LINEヤフー株式会社
 ---

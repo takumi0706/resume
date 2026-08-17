@@ -4,10 +4,16 @@ import Base from "@layouts/Base.astro";
 import { formalContact, github, zenn } from "@/config/site";
 import Facts from "@components/Facts.astro";
 import type { Fact } from "@components/Facts.astro";
+import { splitLocale } from "@i18n/config";
+import { ui } from "@i18n/ui";
 
 // 02 · Long Document
 // 仕切りは余白。罫線を引かない（トップページの太罫と対照させる）。
 // 見出しは本文の流れから立ち上がる短い語句。CTA は段落のなかのテキストリンク。
+
+// ロケールは URL から引く。/en/resume/ でも同じ実装が動く。
+const { locale } = splitLocale(Astro.url.pathname);
+const t = ui[locale];
 
 const byDescending = (a: string, b: string): number => b.localeCompare(a);
 
@@ -39,7 +45,7 @@ const schools = education.sort((a, b) => byDescending(a.data.start, b.data.start
 const honours = awards.sort((a, b) => byDescending(a.data.date, b.data.date));
 const communityCount = community.length;
 
-const current = work.find((entry) => entry.data.end === null && entry.data.employment === "正社員");
+const current = work.find((entry) => entry.data.end === null && entry.data.employment === "fulltime");
 const latestSchool = schools.at(0);
 
 const profile: Fact[] = [
@@ -99,8 +105,8 @@ profile.push({ key: "実務", value: `${work.length}社`, sub: "2024年10月か�
             <p class="job__meta tnum">
               <span>{period(section.data.start, section.data.end)}</span>
               <span>{section.data.title}</span>
-              <span>{section.data.employment}</span>
-              {section.data.remote && <span>リモート</span>}
+              <span>{t.employment[section.data.employment]}</span>
+              {section.data.remote && <span>{t.remote}</span>}
             </p>
             {section.data.stack.length > 0 && (
               <p class="job__stack">{section.data.stack.join(" · ")}</p>

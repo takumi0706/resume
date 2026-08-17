@@ -2,7 +2,7 @@
 company: 株式会社ナガセ
 companyUrl: https://www.toshin.com/nagase/
 title: Part Tech Lead
-employment: アルバイト
+employment: parttime
 start: "2025-05"
 end: null
 remote: true

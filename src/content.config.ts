@@ -19,7 +19,11 @@ const work = defineCollection({
     company: z.string(),
     companyUrl: z.url().optional(),
     title: z.string(),
-    employment: z.enum(["正社員", "アルバイト", "インターン", "業務委託"]),
+    /**
+     * 言語に依存しないキーで持つ。表示名は src/i18n/ui.ts が言語ごとに持つ。
+     * ここに日本語を書くと、英語版のために同じ経歴をもう一組作る羽目になる。
+     */
+    employment: z.enum(["fulltime", "parttime", "intern", "contract"]),
     start: yearMonth,
     /** null は「現在も継続中」を意味する。 */
     end: yearMonth.nullable(),
@@ -96,14 +100,8 @@ const skills = defineCollection({
   loader: glob({ base: "./src/content/skills", pattern: "**/*.md" }),
   schema: z.object({
     name: z.string(),
-    category: z.enum([
-      "言語",
-      "サーバーサイド",
-      "フロントエンド",
-      "データ",
-      "インフラ",
-      "仕様・プロトコル",
-    ]),
+    /** 表示名は src/i18n/ui.ts。並び順は skillCategoryOrder。 */
+    category: z.enum(["language", "backend", "frontend", "data", "infra", "protocol"]),
     /** 実績のある場所。会社名・OSS 名・記事名など、辿れる単位で書く。 */
     usedIn: z.array(z.string()).min(1, "実績が1件もない技術は載せない"),
     note: z.string().optional(),

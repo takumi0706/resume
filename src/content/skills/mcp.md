@@ -1,6 +1,6 @@
 ---
 name: Model Context Protocol
-category: 仕様・プロトコル
+category: protocol
 usedIn:
   - google-calendar-mcp
 ---

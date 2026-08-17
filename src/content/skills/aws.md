@@ -1,6 +1,6 @@
 ---
 name: AWS
-category: インフラ
+category: infra
 usedIn:
   - 株式会社ナガセ
   - メモアカ

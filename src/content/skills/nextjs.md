@@ -1,6 +1,6 @@
 ---
 name: Next.js
-category: フロントエンド
+category: frontend
 usedIn:
   - Next.jsとShadcn/UIで作るモダンWebアプリケーション
 ---

@@ -1,6 +1,6 @@
 ---
 name: Express
-category: サーバーサイド
+category: backend
 usedIn:
   - メモアカ
 ---

@@ -2,6 +2,8 @@
 import { getCollection } from "astro:content";
 import Base from "@layouts/Base.astro";
 import Chip from "@components/Chip.astro";
+import { splitLocale, localePath } from "@i18n/config";
+import { ui, fill, skillCategoryOrder } from "@i18n/ui";
 
 // 01 · Bento Grid
 // 大きさの違いがリズムを生む。カードを揃えない。
@@ -12,14 +14,9 @@ import Chip from "@components/Chip.astro";
 // Hallmark の既定はヒーローを中央揃えにするが、中央揃えの連続は anti-pattern
 // （Centred everything）であり、サイト全体も左寄せなので左寄せにする。
 
-const CATEGORY_ORDER: readonly string[] = [
-  "言語",
-  "サーバーサイド",
-  "フロントエンド",
-  "データ",
-  "インフラ",
-  "仕様・プロトコル",
-];
+// ロケールは URL から引く。/en/skill/ でも同じ実装が動く。
+const { locale } = splitLocale(Astro.url.pathname);
+const t = ui[locale];
 
 const skills = await getCollection("skills");
 
@@ -28,7 +25,8 @@ const ranked = [...skills].sort((a, b) => {
   const byEvidence = b.data.usedIn.length - a.data.usedIn.length;
   if (byEvidence !== 0) return byEvidence;
   return (
-    CATEGORY_ORDER.indexOf(a.data.category) - CATEGORY_ORDER.indexOf(b.data.category)
+    skillCategoryOrder.indexOf(a.data.category) -
+    skillCategoryOrder.indexOf(b.data.category)
   );
 });
 
@@ -41,15 +39,12 @@ const spanOf = (count: number): string => {
 const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.length, 0);
 ---
 
-<Base
-  title="技術 — 小山田 卓生"
-  description="小山田卓生（@takumi0706）が実務・OSS・執筆で使ってきた技術の一覧。TypeScript、Go、Node.js、AWS など。"
->
+<Base title={t.skillTitle} description={t.skillDescription}>
   <article class="skills">
     <div class="shell">
       <section class="skills__hero">
-        <h1 class="skills__title">使ってきた技術</h1>
-        <Chip href="/resume/" label="業務の詳細は職務経歴書へ" />
+        <h1 class="skills__title">{t.skillHeading}</h1>
+        <Chip href={localePath(locale, "/resume/")} label={t.skillCta} />
       </section>
 
       <section class="bento">
@@ -57,7 +52,7 @@ const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.leng
           ranked.map((skill) => (
             <article class:list={["cell", `cell--${spanOf(skill.data.usedIn.length)}`]}>
               <h2 class="cell__name">{skill.data.name}</h2>
-              <p class="cell__category">{skill.data.category}</p>
+              <p class="cell__category">{t.skillCategory[skill.data.category]}</p>
               {skill.data.note && <p class="cell__note">{skill.data.note}</p>}
               <ul class="cell__used">
                 {skill.data.usedIn.map((place) => (
@@ -70,7 +65,7 @@ const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.leng
       </section>
 
       <p class="skills__foot tnum">
-        {skills.length}の技術 · {totalEvidence}件の実績
+        {fill(t.skillFoot, { skills: skills.length, evidence: totalEvidence })}
       </p>
     </div>
   </article>

@@ -2,7 +2,7 @@
 company: LINEヤフー株式会社
 companyUrl: https://www.lycorp.co.jp/
 title: ソフトウェアエンジニア
-employment: 正社員
+employment: fulltime
 start: "2026-04"
 end: null
 stack: [Go, TypeScript]

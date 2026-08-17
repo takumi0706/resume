@@ -79,7 +79,7 @@ const groups: IndexGroup[] = [
 ];
 
 // 現在地の定義リストで参照する現職と直近のカンファレンス。
-const current = work.find((entry) => entry.data.end === null && entry.data.employment === "正社員");
+const current = work.find((entry) => entry.data.end === null && entry.data.employment === "fulltime");
 const upcoming = community
   .slice()
   .sort((a, b) => byDescending(a.data.date, b.data.date))

@@ -1,6 +1,6 @@
 ---
 event: TSKaigi 2026
-role: スタッフ
+role: staff
 date: "2026-05-22"
 url: https://2026.tskaigi.org/
 ---

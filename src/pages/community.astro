@@ -1,7 +1,12 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import Base from "@layouts/Base.astro";
 import { communityContact } from "@/config/site";
+import { splitLocale } from "@i18n/config";
+import { ui } from "@i18n/ui";
+import { englishName } from "@i18n/names";
+import { yearMonth } from "@i18n/format";
+import { loadProse } from "@i18n/content";
 
 // 12 · Letter
 // 一人称の、書かれたもの。ボタンはフォールドに置かない。
@@ -14,24 +19,24 @@ import { communityContact } from "@/config/site";
 // 本人の許諾なく公開の場に書くべきではない。
 // 前任者がなぜ引き継いだのかにも触れない。他人の内心は本人にしか語れない。
 
+const { locale } = splitLocale(Astro.url.pathname);
+const t = ui[locale];
+
 const byDescending = (a: string, b: string): number => b.localeCompare(a);
 
 const community = await getCollection("community");
 const record = community.sort((a, b) => byDescending(a.data.date, b.data.date));
 
-const jpDate = (date: string): string => {
-  const [year, month] = date.split("-");
-  return `${year}年${Number(month)}月`;
-};
+// 本文は src/content/prose/community.md と community.en.md。
+// 複数段落の散文を辞書に入れると、文を断片に割ることになって語順が壊れる。
+const essay = await loadProse(locale, "community");
+const Essay = essay ? (await render(essay)).Content : null;
 ---
 
-<Base
-  title="カンファレンス運営 — 小山田 卓生"
-  description="小山田卓生（@takumi0706）のカンファレンス運営歴。Hono Conference in Tokyo 2026 実行委員長。YAPC::Hakodate 2024 からカンファレンスの運営に関わっています。"
->
+<Base title={t.communityTitle} description={t.communityDescription}>
   <article class="letter">
     <div class="shell">
-      <h1 class="letter__salutation">カンファレンス運営</h1>
+      <h1 class="letter__salutation">{t.communityHeading}</h1>
 
       {/* 記録を先に出す。Letter の「呼びかけで始まる」形は崩れるが、
           読まないと実績に届かない構成の方が問題。逸脱は design.md に記録。 */}
@@ -39,7 +44,9 @@ const jpDate = (date: string): string => {
         {
           record.map((entry) => (
             <li class="record__item">
-              <span class="record__date tnum">{jpDate(entry.data.date)}</span>
+              <span class="record__date tnum">
+                {yearMonth(locale, entry.data.date.slice(0, 7))}
+              </span>
               <span class="record__event">
                 {entry.data.url ? (
                   <a class="record__link" href={entry.data.url} rel="noopener">
@@ -48,51 +55,27 @@ const jpDate = (date: string): string => {
                 ) : (
                   entry.data.event
                 )}
-                {entry.data.venue && <span class="record__venue">{entry.data.venue}</span>}
+                {entry.data.venue && (
+                  <span class="record__venue">
+                    {locale === "ja" ? entry.data.venue : englishName(entry.data.venue)}
+                  </span>
+                )}
               </span>
-              <span class="record__role">{entry.data.role}</span>
+              <span class="record__role">{t.communityRole[entry.data.role]}</span>
             </li>
           ))
         }
       </ul>
 
-      <h2 class="letter__head">なぜやっているのか</h2>
+      <h2 class="letter__head">{t.communityWhyHead}</h2>
 
-      <div class="letter__body">
-        <p class="letter__opening">2024年10月、函館。</p>
-
-        <p>
-          学生のころ、知人に YAPC::Hakodate
-          を紹介されました。行ってみたい気持ちはあったものの、知り合いは誰もいません。当日スタッフとして参加すれば浮かないだろう、というのが最初の動機でした。
-        </p>
-
-        <p>
-          実際に手を動かしてみると、運営そのものが面白いことに気づきました。それ以来、スタッフを募集しているカンファレンスにちょくちょく顔を出すようになりました。
-        </p>
-
-        <p>
-          カンファレンスを運営する理由をひとつ挙げるなら、交流ができるからです。
-        </p>
-
-        <p class="letter__separator" aria-hidden="true">* * *</p>
-
-        <p>
-          Hono Conference は、吉祥寺.pm
-          を主催している方が動かしているのを見て、手伝おうと思ったのがはじまりです。2025年はコアスタッフとして関わり、2026年は前任者から実行委員長を引き継ぎました。
-        </p>
-
-        <p>
-          実行委員長としてやっているのは、意思決定と、スポンサーとの会話と、予算管理です。あとは、コアスタッフがそれぞれ動きやすい状態をつくること。
-        </p>
-
-        <p>
-          イベントごとに関わりの深さは違います。当日スタッフだけのこともあれば、企画から入ることもあります。手が足りていないところに入る、という決め方をしています。
-        </p>
-      </div>
+      <div class="letter__body">{Essay && <Essay />}</div>
 
       <p class="letter__signoff">
-        スタッフを募集しているカンファレンスがあれば、だいたい顔を出します。
-        <a class="record__link" href={communityContact.href} rel={communityContact.rel}>声をかけてください →</a>
+        {t.communitySignoff}
+        <a class="record__link" href={communityContact.href} rel={communityContact.rel}>
+          {t.communitySignoffLink}
+        </a>
       </p>
     </div>
   </article>
@@ -119,7 +102,10 @@ const jpDate = (date: string): string => {
     margin-block-start: var(--space-md);
   }
 
-  .letter__separator {
+  /* 区切りは Markdown 本文の中に生の HTML で置いている。
+     `* * *` をそのまま書くと <hr> になり、元の意匠（字間を開けた三つ星）が失われる。
+     Markdown から来た要素には scoped CSS の印が付かないので :global が要る。 */
+  .letter__body :global(.letter__separator) {
     color: var(--color-muted);
     letter-spacing: 0.4em;
     margin-block: var(--space-lg) var(--space-lg);

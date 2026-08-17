@@ -14,7 +14,7 @@ const yearMonthDay = z
 
 /** 職務経歴。本文に業務内容を書く。 */
 const work = defineCollection({
-  loader: glob({ base: "./src/content/work", pattern: "**/*.md" }),
+  loader: glob({ base: "./src/content/work", pattern: ["**/*.md", "!**/*.en.md"] }),
   schema: z.object({
     company: z.string(),
     companyUrl: z.url().optional(),
@@ -37,7 +37,7 @@ const work = defineCollection({
 
 /** 学歴。 */
 const education = defineCollection({
-  loader: glob({ base: "./src/content/education", pattern: "**/*.md" }),
+  loader: glob({ base: "./src/content/education", pattern: ["**/*.md", "!**/*.en.md"] }),
   schema: z.object({
     school: z.string(),
     schoolUrl: z.url().optional(),
@@ -49,10 +49,11 @@ const education = defineCollection({
 
 /** カンファレンス運営。 */
 const community = defineCollection({
-  loader: glob({ base: "./src/content/community", pattern: "**/*.md" }),
+  loader: glob({ base: "./src/content/community", pattern: ["**/*.md", "!**/*.en.md"] }),
   schema: z.object({
     event: z.string(),
-    role: z.string(),
+    /** 閉じた集合なので言語に依存しないキーで持つ。表示名は src/i18n/ui.ts。 */
+    role: z.enum(["chair", "core", "staff", "dayof"]),
     date: yearMonthDay,
     url: z.url().optional(),
     venue: z.string().optional(),
@@ -61,11 +62,12 @@ const community = defineCollection({
 
 /** OSS・個人開発。 */
 const oss = defineCollection({
-  loader: glob({ base: "./src/content/oss", pattern: "**/*.md" }),
+  loader: glob({ base: "./src/content/oss", pattern: ["**/*.md", "!**/*.en.md"] }),
   schema: z.object({
     name: z.string(),
     url: z.url(),
-    role: z.string(),
+    /** 同上。 */
+    role: z.enum(["author", "contributor"]),
     released: yearMonth,
     stars: z.number().int().nonnegative().optional(),
     forks: z.number().int().nonnegative().optional(),
@@ -78,7 +80,7 @@ const oss = defineCollection({
 
 /** 受賞。 */
 const awards = defineCollection({
-  loader: glob({ base: "./src/content/awards", pattern: "**/*.md" }),
+  loader: glob({ base: "./src/content/awards", pattern: ["**/*.md", "!**/*.en.md"] }),
   schema: z.object({
     event: z.string(),
     award: z.string(),
@@ -97,7 +99,7 @@ const awards = defineCollection({
  * usedIn が空のものはページに出ない（最低1件を必須にしている）。
  */
 const skills = defineCollection({
-  loader: glob({ base: "./src/content/skills", pattern: "**/*.md" }),
+  loader: glob({ base: "./src/content/skills", pattern: ["**/*.md", "!**/*.en.md"] }),
   schema: z.object({
     name: z.string(),
     /** 表示名は src/i18n/ui.ts。並び順は skillCategoryOrder。 */
@@ -125,4 +127,54 @@ const writing = defineCollection({
   }),
 });
 
-export const collections = { work, education, community, oss, awards, skills, writing };
+/**
+ * 英語の上書き。
+ *
+ * 事実（日付・URL・stack・star 数）は日本語側のファイルにしか置かない。
+ * 言語ごとにファイルを丸ごと複製すると、日付を直したのに片方だけ古い、という
+ * ずれが必ず起きる。ここには訳す必要のあるものだけを置く。
+ *
+ * 対応付けは id で行う。`work/nagase.md` の訳は `work/nagase.en.md`。
+ *
+ * .strict() にしてあるのは綴り間違いを落とすため。`summary` を `summry` と書いても
+ * 黙って無視されると、英語ページだけ日本語のまま出てしまい、見ていて気づけない。
+ *
+ * 固有名詞（会社名・学校名・会場名）はここに書かない。src/i18n/names.ts の表で引く。
+ * 同じ会社が場所によって違う綴りになるのを防ぐため。
+ */
+const translations = defineCollection({
+  loader: glob({ base: "./src/content", pattern: ["**/*.en.md", "!prose/**"] }),
+  schema: z
+    .object({
+      title: z.string().optional(),
+      summary: z.string().optional(),
+      faculty: z.string().optional(),
+      note: z.string().optional(),
+      event: z.string().optional(),
+      award: z.string().optional(),
+      work: z.string().optional(),
+      team: z.string().optional(),
+    })
+    .strict(),
+});
+
+/**
+ * ページの散文。見出しやラベルと違って複数文あるものはここに置く。
+ * 辞書に入れて文を断片に割ると、語順の違う言語で必ず壊れる。
+ */
+const prose = defineCollection({
+  loader: glob({ base: "./src/content/prose", pattern: "**/*.md" }),
+  schema: z.object({}),
+});
+
+export const collections = {
+  work,
+  education,
+  community,
+  oss,
+  awards,
+  skills,
+  writing,
+  translations,
+  prose,
+};

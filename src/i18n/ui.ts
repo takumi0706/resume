@@ -27,6 +27,12 @@ export type SkillCategory =
   | "infra"
   | "protocol";
 
+/** カンファレンスでの役割。 */
+export type CommunityRole = "chair" | "core" | "staff" | "dayof";
+
+/** OSS での役割。 */
+export type OssRole = "author" | "contributor";
+
 /** スキルページでの分類の並び順。件数が同じときの二次キーになる。 */
 export const skillCategoryOrder: SkillCategory[] = [
   "language",
@@ -66,6 +72,8 @@ interface Strings {
   /* --- 分類 -------------------------------------------------------------- */
   employment: Record<Employment, string>;
   skillCategory: Record<SkillCategory, string>;
+  communityRole: Record<CommunityRole, string>;
+  ossRole: Record<OssRole, string>;
 
   /* --- トップ ------------------------------------------------------------ */
   indexTitle: string;
@@ -118,6 +126,8 @@ interface Strings {
   communityDescription: string;
   communityHeading: string;
   communityWhyHead: string;
+  communitySignoff: string;
+  communitySignoffLink: string;
 
   /* --- オープンソース ---------------------------------------------------- */
   ossTitle: string;
@@ -144,6 +154,7 @@ interface Strings {
   notFoundTitle: string;
   notFoundDescription: string;
   notFoundHeading: string;
+  notFoundLede: string;
 }
 
 const ja: Strings = {
@@ -184,6 +195,13 @@ const ja: Strings = {
     infra: "インフラ",
     protocol: "仕様・プロトコル",
   },
+  communityRole: {
+    chair: "実行委員長",
+    core: "コアスタッフ",
+    staff: "スタッフ",
+    dayof: "当日スタッフ",
+  },
+  ossRole: { author: "作者", contributor: "コントリビューター" },
 
   indexTitle: "小山田 卓生 — Takumi Oyamada",
   indexDescription:
@@ -231,6 +249,8 @@ const ja: Strings = {
     "小山田卓生（@takumi0706）のカンファレンス運営歴。Hono Conference in Tokyo 2026 実行委員長。YAPC::Hakodate 2024 からカンファレンスの運営に関わっています。",
   communityHeading: "カンファレンス運営",
   communityWhyHead: "なぜやっているのか",
+  communitySignoff: "スタッフを募集しているカンファレンスがあれば、だいたい顔を出します。",
+  communitySignoffLink: "声をかけてください →",
 
   ossTitle: "オープンソース — 小山田 卓生",
   ossDescription:
@@ -253,6 +273,7 @@ const ja: Strings = {
   notFoundTitle: "ページが見つかりません — 小山田 卓生",
   notFoundDescription: "お探しのページは見つかりませんでした。",
   notFoundHeading: "このページはありません。",
+  notFoundLede: "URL が変わったか、もともと存在しないアドレスです。行き先は以下にあります。",
 };
 
 const en: Strings = {
@@ -293,6 +314,13 @@ const en: Strings = {
     infra: "Infrastructure",
     protocol: "Specs & protocols",
   },
+  communityRole: {
+    chair: "Chair",
+    core: "Core staff",
+    staff: "Staff",
+    dayof: "Day-of staff",
+  },
+  ossRole: { author: "Author", contributor: "Contributor" },
 
   indexTitle: "Takumi Oyamada",
   indexDescription:
@@ -340,6 +368,8 @@ const en: Strings = {
     "Conferences Takumi Oyamada (@takumi0706) has helped run. Chair of Hono Conference in Tokyo 2026, organising conferences since YAPC::Hakodate 2024.",
   communityHeading: "Running conferences",
   communityWhyHead: "Why I do it",
+  communitySignoff: "If a conference is looking for staff, chances are I will turn up.",
+  communitySignoffLink: "Say hello →",
 
   ossTitle: "Open source — Takumi Oyamada",
   ossDescription:
@@ -362,6 +392,8 @@ const en: Strings = {
   notFoundTitle: "Page not found — Takumi Oyamada",
   notFoundDescription: "The page you were looking for does not exist.",
   notFoundHeading: "This page does not exist.",
+  notFoundLede:
+    "Either the URL changed or it never existed. Here is where you can go instead.",
 };
 
 export const ui: Record<Locale, Strings> = { ja, en };

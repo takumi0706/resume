@@ -1,6 +1,6 @@
 ---
 event: TSKaigi Hokuriku 2025
-role: 当日スタッフ
+role: dayof
 date: "2025-11-23"
 url: https://hokuriku.tskaigi.org/
 venue: ホテル金沢

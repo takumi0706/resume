@@ -1,7 +1,7 @@
 ---
 name: google-calendar-mcp
 url: https://github.com/takumi0706/google-calendar-mcp
-role: 作者
+role: author
 released: "2025-03"
 stars: 59
 forks: 10

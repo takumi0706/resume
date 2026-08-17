@@ -1,7 +1,7 @@
 ---
 name: difit
 url: https://github.com/yoshiko-pg/difit/pull/199
-role: コントリビューター
+role: contributor
 released: "2026-02"
 stack: [TypeScript]
 summary: Git の差分を GitHub 風に表示する CLI への機能追加

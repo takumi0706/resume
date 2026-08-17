@@ -1,7 +1,7 @@
 ---
 name: awesome-mcp-servers
 url: https://github.com/punkpeye/awesome-mcp-servers/pulls?q=author%3Atakumi0706
-role: コントリビューター
+role: contributor
 released: "2025-04"
 summary: MCP サーバーのキュレーションリストへの貢献
 ---

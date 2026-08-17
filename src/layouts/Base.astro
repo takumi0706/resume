@@ -24,6 +24,9 @@ interface Props {
 }
 
 const { title, description, preloadDisplayWeight = true } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL("/icon.png", Astro.site).href;
 ---
 
 <!doctype html>
@@ -31,7 +34,8 @@ const { title, description, preloadDisplayWeight = true } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {/* 和文サブセットは LCP に効くので先読みする。公開パスが固定なので preload できる。
         ただし実際に使うウェイトだけを先読みする。 */}
     {
@@ -58,6 +62,12 @@ const { title, description, preloadDisplayWeight = true } = Astro.props;
     <meta property="og:description" content={description} />
     <meta property="og:type" content="profile" />
     <meta property="og:locale" content="ja_JP" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <link rel="canonical" href={canonical} />
+    {/* アイコンは正方形なので summary_large_image ではなく summary を使う。
+        横長でない画像を large 指定すると左右が切られる。 */}
+    <meta name="twitter:card" content="summary" />
   </head>
   <body>
     <a class="skip-link" href="#main">本文へスキップ</a>

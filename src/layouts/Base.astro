@@ -3,6 +3,8 @@ import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 // 和文は scripts/subset-jp-font.mjs が生成したサブセットを使う。理由は fonts.css を参照。
 import "@styles/fonts.css";
+// 和文サブセットのパスは生成物。ハッシュ付きなのでここから引く。
+import fontPaths from "@/data/fonts.json";
 import "@styles/tokens.css";
 import "@styles/base.css";
 import SiteNav from "@components/SiteNav.astro";
@@ -36,7 +38,7 @@ const { title, description, preloadDisplayWeight = true } = Astro.props;
       preloadDisplayWeight && (
         <link
           rel="preload"
-          href="/fonts/ibm-plex-sans-jp-600-subset.woff2"
+          href={fontPaths["600"]}
           as="font"
           type="font/woff2"
           crossorigin
@@ -45,7 +47,7 @@ const { title, description, preloadDisplayWeight = true } = Astro.props;
     }
     <link
       rel="preload"
-      href="/fonts/ibm-plex-sans-jp-400-subset.woff2"
+      href={fontPaths["400"]}
       as="font"
       type="font/woff2"
       crossorigin

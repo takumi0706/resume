@@ -12,7 +12,7 @@
     "dev": "pnpm run fonts && astro dev",
     "build": "pnpm run fonts && astro build",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "pnpm run fonts && astro check",
     "astro": "astro",
     "check:links": "node scripts/check-links.mjs",
     "ci": "pnpm run check && pnpm run build && pnpm run check:links",

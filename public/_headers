@@ -1,0 +1,12 @@
+# Cloudflare Workers (Static Assets) のヘッダー設定。
+# 既定は Cache-Control: public, max-age=0, must-revalidate で、
+# フォントのような不変アセットまで毎回再検証されてしまう。
+
+# 和文サブセットは内容のハッシュをファイル名に持つ（scripts/subset-jp-font.mjs）。
+# 中身が変われば URL も変わるので、immutable を安全に付けられる。
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Astro がハッシュ付きで吐く JS / CSS / フォント。
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

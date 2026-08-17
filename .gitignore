@@ -23,8 +23,10 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# 和文サブセットはビルド生成物（pnpm run fonts で再生成される）
-public/fonts/*.woff2
+# 和文フォント関連はすべて生成物（pnpm run fonts で再生成される）
+public/fonts/
+src/styles/fonts.css
+src/data/fonts.json
 
 # Cloudflare
 .wrangler/

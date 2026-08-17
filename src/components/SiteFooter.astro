@@ -43,8 +43,11 @@ import { sections, elsewhere } from "@/config/site";
 
 <style>
   .site-footer {
-    margin-block-start: var(--space-3xl);
-    padding-block-end: var(--space-xl);
+    /* 本文との間隔。--space-3xl(144px) は空きすぎだった。 */
+    margin-block-start: var(--space-2xl);
+    /* 著作権表示の下。ここが広いと、ページが終わったのに
+       止まりきっていないように見える。 */
+    padding-block-end: var(--space-md);
   }
 
   .site-footer__row {

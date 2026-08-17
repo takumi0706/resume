@@ -1,5 +1,6 @@
 ---
-company: メモアカ
+company: 株式会社メモアカ
+companyUrl: https://corp.memoaca.com/
 title: バックエンドエンジニア
 employment: インターン
 start: "2025-02"

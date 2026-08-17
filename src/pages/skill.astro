@@ -12,7 +12,13 @@ import Chip from "@components/Chip.astro";
 // Hallmark の既定はヒーローを中央揃えにするが、中央揃えの連続は anti-pattern
 // （Centred everything）であり、サイト全体も左寄せなので左寄せにする。
 
-const CATEGORY_ORDER = ["言語", "フレームワーク", "データ", "インフラ", "開発プロセス"] as const;
+const CATEGORY_ORDER: readonly string[] = [
+  "言語",
+  "フレームワーク",
+  "データ",
+  "インフラ",
+  "開発プロセス",
+];
 
 const skills = await getCollection("skills");
 
@@ -44,9 +50,6 @@ const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.leng
         <h1 class="skills__title">使ってきた技術</h1>
         <p class="skills__lede">
           具体を知らない現場でも、抽象が同じなら早く動けます。LINEヤフーで配属直後に手を動かせたのも、そのプロダクト固有の事情ではなく、構造の側を先に分かっていたからでした。
-        </p>
-        <p class="skills__lede">
-          なので「中級」「実務レベル」といった段階は書きません。代わりに、どこで使ったかだけを並べています。タイルの大きさは実績の件数です。
         </p>
         <Chip href="/resume/" label="業務の詳細は職務経歴書へ" />
       </section>

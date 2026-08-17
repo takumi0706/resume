@@ -106,13 +106,18 @@ const ogImage = new URL("/icon.png", Astro.site).href;
       grid-template-areas:
         "rail main"
         "rail footer";
+      max-inline-size: calc(var(--rail-width) + var(--page-max));
+      margin-inline: auto;
       /* align-items: start にすると .rail の高さが中身の分（100dvh）しか
          なくなり、そこを通り過ぎた時点で内側の sticky が効かなくなる。
          既定の stretch のまま、レールをページ全高に伸ばす。 */
     }
 
-    /* 本文は中央寄せにしない。レールとの間に死んだ余白ができるため、
-     * レールのすぐ隣から始める。 */
+    /* レールと本文をひとまとまりとして中央に置く。
+     *
+     * 本文だけを中央寄せにするとレールとの間に隙間が空き、
+     * 本文だけを左詰めにすると右側に大きな空白が残る。
+     * どちらもレールを画面の左端に貼り付けたまま考えたのが誤りだった。 */
     .page :global(.shell) {
       margin-inline: 0;
     }

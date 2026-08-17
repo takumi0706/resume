@@ -94,7 +94,14 @@ const skills = defineCollection({
   loader: glob({ base: "./src/content/skills", pattern: "**/*.md" }),
   schema: z.object({
     name: z.string(),
-    category: z.enum(["言語", "フレームワーク", "データ", "インフラ", "開発プロセス"]),
+    category: z.enum([
+      "言語",
+      "サーバーサイド",
+      "フロントエンド",
+      "データ",
+      "インフラ",
+      "仕様・プロトコル",
+    ]),
     /** 実績のある場所。会社名・OSS 名・記事名など、辿れる単位で書く。 */
     usedIn: z.array(z.string()).min(1, "実績が1件もない技術は載せない"),
     note: z.string().optional(),

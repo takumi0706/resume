@@ -1,6 +1,6 @@
 ---
 name: Express
-category: フレームワーク
+category: サーバーサイド
 usedIn:
   - メモアカ
 ---

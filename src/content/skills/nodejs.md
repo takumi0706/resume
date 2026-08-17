@@ -1,6 +1,6 @@
 ---
 name: Node.js
-category: フレームワーク
+category: サーバーサイド
 usedIn:
   - 株式会社ナガセ
   - メモアカ

@@ -202,10 +202,11 @@ if (upcoming) {
     padding-block: var(--space-lg) var(--space-md);
   }
 
-  /* 欧文なので --text-display をそのまま使える。
-     和文だと字幅が約2倍あり、同じ数値では過大になる（--text-display-ja に落とす）。 */
+  /* --text-display（最大84px）は使わない。このサイトは情報密度が高く行間も締まって
+     いるので、84px の見出しは浮く。和文で一度やって「デカい」と言われ、欧文に
+     変えたときに同じ数値へ戻して同じ指摘を受けた。上限そのものが合っていない。 */
   .hero__display {
-    font-size: var(--text-display);
+    font-size: var(--text-display-s);
     font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1.05;
@@ -289,7 +290,7 @@ if (upcoming) {
 
   .index__link {
     text-decoration: underline;
-    text-decoration-color: var(--color-rule);
+    text-decoration-color: var(--color-muted);
     text-decoration-thickness: 1px;
     text-underline-offset: 0.15em;
     transition:

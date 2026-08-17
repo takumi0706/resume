@@ -11,7 +11,7 @@
 - Genre · modern-minimal
 - Theme · custom（vibe: 「工学的な正確さ、寒色、無装飾」）
 - Axes · light / geometric-sans / neutral
-- Nav · N9 Edge-aligned minimal（全ページ共通）
+- Nav · N3 Side-rail（全ページ共通）
 - Footer · Ft2 Inline single line（全ページ共通）
 
 **nav と footer はサイト共通のクロームなので、ページごとにローテーションさせない。**
@@ -160,15 +160,19 @@ console.log(p,"字 /",r,"行 =",(p/r).toFixed(0));'
 | `@components/*` | `src/components/*` |
 | `@styles/*` | `src/styles/*` |
 
-## ナビの CTA
+## サイドレール
 
-N9 は CTA が1つしかないので、**現在地に応じて行き先を変える**。
-職務経歴書を読んでいる人に職務経歴書へのリンクを出しても行き止まりになる。
+行き先が6つあるのにナビにリンクが1本も無い状態だった（N9 Edge-aligned minimal）。
+訪問者はフッターまでスクロールしないと他のページの存在に気づけなかったため、
+N3 Side-rail に変えた。
 
-| 現在地 | CTA |
-|---|---|
-| `/resume/` 以外 | 職務経歴書 → `/resume/` |
-| `/resume/` | 連絡する → X |
+- レールは `.page` グリッドの全高に伸ばす。`align-items: start` にすると
+  中身の高さ（100dvh）しか無くなり、そこを通り過ぎた時点で sticky が切れる
+- レールと本文はひとまとまりで中央に置く。本文だけを中央寄せにすると
+  レールとの間に隙間が空き、左詰めにすると右側に大きな空白が残る
+- ラベルは `sections` の `short` を使う。和文4字を超えるとレール幅で折り返し、
+  gate 49（クリック可能テキストの2行禁止）に触れる
+- 現在地は色ではなく帯で示す。色だけだと見分けがつきにくい
 
 ## Tokens
 

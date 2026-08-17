@@ -5,6 +5,7 @@ import Chip from "@components/Chip.astro";
 import { splitLocale, localePath } from "@i18n/config";
 import { ui, fill, skillCategoryOrder } from "@i18n/ui";
 import { englishName } from "@i18n/names";
+import { cjkLang } from "@i18n/format";
 import { loadTranslations } from "@i18n/content";
 
 // 01 · Bento Grid
@@ -66,7 +67,7 @@ const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.leng
                   記事の題名は日本語のまま残る。それが正しい。 */}
               <ul class="cell__used">
                 {skill.data.usedIn.map((place) => (
-                  <li class="cell__place">
+                  <li class="cell__place" lang={cjkLang(locale, englishName(place))}>
                     {locale === "ja" ? place : englishName(place)}
                   </li>
                 ))}

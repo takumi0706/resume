@@ -24,6 +24,19 @@ const monthNames: string[] = [
   "December",
 ];
 
+/**
+ * 英語ページに和文が残る箇所へ付ける lang 属性を返す。
+ *
+ * 意図的に訳さない和文がある（氏名の原語表記、日本語で書かれた Zenn の記事題、
+ * 公式のローマ字表記が無いプロダクト名）。無標のまま lang="en" の文書に置くと、
+ * 読み上げが英語として発音される。
+ *
+ * 日本語ページでは undefined を返す。文書全体が既に ja なので付ける必要がない。
+ */
+export function cjkLang(locale: Locale, text: string): "ja" | undefined {
+  return locale !== "ja" && /[぀-ヿ㐀-鿿]/.test(text) ? "ja" : undefined;
+}
+
 /** `2025-05` → 「2025年5月」/ "May 2025"。 */
 export function yearMonth(locale: Locale, value: string): string {
   const [year, month] = value.split("-");

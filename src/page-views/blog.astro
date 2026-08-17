@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import Base from "@layouts/Base.astro";
 import { splitLocale } from "@i18n/config";
 import { ui, fill } from "@i18n/ui";
-import { shortDate } from "@i18n/format";
+import { shortDate, cjkLang } from "@i18n/format";
 
 // 13 · Index-First
 // ページそのものがリンクの目録。ヒーローも物語の流れも持たない。
@@ -53,7 +53,12 @@ const range =
                   <span class="entry__date tnum">
                     {shortDate(locale, article.data.publishedAt)}
                   </span>
-                  <a class="entry__link" href={article.data.url} rel="noopener">
+                  <a
+                    class="entry__link"
+                    href={article.data.url}
+                    rel="noopener"
+                    lang={cjkLang(locale, article.data.title)}
+                  >
                     {article.data.title}
                   </a>
                   <span class="entry__meta tnum">

@@ -5,6 +5,9 @@
 // 参考にした shunsock/resume は職務経歴書で「散文212字 / 箇条書き69項目」だった。
 // こちらは当初「458字 / 15行」で、読ませすぎていた。
 
+import { splitLocale } from "@i18n/config";
+import { cjkLang } from "@i18n/format";
+
 export interface Fact {
   key: string;
   value: string;
@@ -19,6 +22,10 @@ interface Props {
 }
 
 const { facts } = Astro.props;
+
+// 英語ページに残る和文（氏名の原語表記など）に lang を付ける。
+// ここで自動判定すれば、Facts を使う全ページが呼び出し側の変更なしで揃う。
+const { locale } = splitLocale(Astro.url.pathname);
 ---
 
 <dl class="facts">
@@ -27,8 +34,12 @@ const { facts } = Astro.props;
       <div class="facts__row">
         <dt class="facts__key">{fact.key}</dt>
         <dd class:list={["facts__value", fact.tnum && "tnum"]}>
-          {fact.value}
-          {fact.sub && <span class="facts__sub">{fact.sub}</span>}
+          <span lang={cjkLang(locale, fact.value)}>{fact.value}</span>
+          {fact.sub && (
+            <span class="facts__sub" lang={cjkLang(locale, fact.sub)}>
+              {fact.sub}
+            </span>
+          )}
         </dd>
       </div>
     ))

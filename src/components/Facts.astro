@@ -1,0 +1,87 @@
+---
+// 事実の定義リスト。
+//
+// 同じ内容を散文で書くと、読まないと分からなくなる。1行1事実で置く。
+// 参考にした shunsock/resume は職務経歴書で「散文212字 / 箇条書き69項目」だった。
+// こちらは当初「458字 / 15行」で、読ませすぎていた。
+
+export interface Fact {
+  key: string;
+  value: string;
+  /** 補足。役職・日付・会場など、値の下にぶら下げる情報。 */
+  sub?: string;
+  /** 数字を含む行は等幅数字にする。 */
+  tnum?: boolean;
+}
+
+interface Props {
+  facts: Fact[];
+}
+
+const { facts } = Astro.props;
+---
+
+<dl class="facts">
+  {
+    facts.map((fact) => (
+      <div class="facts__row">
+        <dt class="facts__key">{fact.key}</dt>
+        <dd class:list={["facts__value", fact.tnum && "tnum"]}>
+          {fact.value}
+          {fact.sub && <span class="facts__sub">{fact.sub}</span>}
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .facts {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .facts__row {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: var(--space-md);
+    align-items: baseline;
+    padding-block-end: var(--space-xs);
+    border-block-end: var(--rule-hair) solid var(--color-rule-2);
+  }
+
+  .facts__row:last-child {
+    border-block-end: 0;
+    padding-block-end: 0;
+  }
+
+  .facts__key {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    letter-spacing: var(--tracking-label);
+  }
+
+  .facts__value {
+    font-size: var(--text-md);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+
+  .facts__sub {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--color-ink-2);
+  }
+
+  @media (width < 40rem) {
+    .facts__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3xs);
+    }
+
+    .facts__value {
+      font-size: var(--text-base);
+    }
+  }
+</style>

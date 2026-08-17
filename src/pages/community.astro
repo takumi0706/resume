@@ -31,9 +31,36 @@ const jpDate = (date: string): string => {
 >
   <article class="letter">
     <div class="shell">
-      <h1 class="letter__salutation">2024年10月、函館。</h1>
+      <h1 class="letter__salutation">カンファレンス運営</h1>
+
+      {/* 記録を先に出す。Letter の「呼びかけで始まる」形は崩れるが、
+          読まないと実績に届かない構成の方が問題。逸脱は design.md に記録。 */}
+      <ul class="record">
+        {
+          record.map((entry) => (
+            <li class="record__item">
+              <span class="record__date tnum">{jpDate(entry.data.date)}</span>
+              <span class="record__event">
+                {entry.data.url ? (
+                  <a class="record__link" href={entry.data.url} rel="noopener">
+                    {entry.data.event}
+                  </a>
+                ) : (
+                  entry.data.event
+                )}
+                {entry.data.venue && <span class="record__venue">{entry.data.venue}</span>}
+              </span>
+              <span class="record__role">{entry.data.role}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2 class="letter__head">なぜやっているのか</h2>
 
       <div class="letter__body">
+        <p class="letter__opening">2024年10月、函館。</p>
+
         <p>
           学生のころ、知人に YAPC::Hakodate
           を紹介されました。行ってみたい気持ちはあったものの、知り合いは誰もいません。当日スタッフとして参加すれば浮かないだろう、というのが最初の動機でした。
@@ -62,29 +89,6 @@ const jpDate = (date: string): string => {
           イベントごとに関わりの深さは違います。当日スタッフだけのこともあれば、企画から入ることもあります。手が足りていないところに入る、という決め方をしています。
         </p>
       </div>
-
-      <h2 class="letter__head">関わったカンファレンス</h2>
-
-      <ul class="record">
-        {
-          record.map((entry) => (
-            <li class="record__item">
-              <span class="record__date tnum">{jpDate(entry.data.date)}</span>
-              <span class="record__event">
-                {entry.data.url ? (
-                  <a class="record__link" href={entry.data.url} rel="noopener">
-                    {entry.data.event}
-                  </a>
-                ) : (
-                  entry.data.event
-                )}
-                {entry.data.venue && <span class="record__venue">{entry.data.venue}</span>}
-              </span>
-              <span class="record__role">{entry.data.role}</span>
-            </li>
-          ))
-        }
-      </ul>
 
       <p class="letter__signoff">
         スタッフを募集しているカンファレンスがあれば、だいたい顔を出します。
@@ -133,6 +137,8 @@ const jpDate = (date: string): string => {
   .record {
     display: grid;
     gap: var(--space-md);
+    /* 幅いっぱいに広げない。役割列が本文から離れて読みにくくなる。 */
+    max-inline-size: 46rem;
   }
 
   .record__item {

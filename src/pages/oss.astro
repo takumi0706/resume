@@ -2,6 +2,8 @@
 import { getCollection, render } from "astro:content";
 import Base from "@layouts/Base.astro";
 import Chip from "@components/Chip.astro";
+import Facts from "@components/Facts.astro";
+import type { Fact } from "@components/Facts.astro";
 
 // 04 · Stat-Led
 // 主役の数字がページを引っ張り、以降はそれを支える／限定する情報が続く。
@@ -32,6 +34,27 @@ const jpMonth = (yearMonth: string): string => {
   const [year, month] = yearMonth.split("-");
   return `${year}年${Number(month)}月`;
 };
+
+// 主役の情報は散文にせず定義リストで置く。以前はこのページに
+// スキャンできる行が1つも無く、全部読まないと分からない状態だった。
+const leadFacts: Fact[] = [];
+
+if (lead) {
+  leadFacts.push({ key: "名称", value: lead.data.name });
+  leadFacts.push({ key: "役割", value: lead.data.role });
+  leadFacts.push({ key: "公開", value: jpMonth(lead.data.released), tnum: true });
+  if (lead.data.forks !== undefined) {
+    leadFacts.push({
+      key: "フォーク",
+      value: String(lead.data.forks),
+      sub: lead.data.metricsAsOf ? `${jpMonth(lead.data.metricsAsOf)}時点` : undefined,
+      tnum: true,
+    });
+  }
+  if (lead.data.stack.length > 0) {
+    leadFacts.push({ key: "技術", value: lead.data.stack.join(" · ") });
+  }
+}
 ---
 
 <Base
@@ -53,14 +76,8 @@ const jpMonth = (yearMonth: string): string => {
             <h1 class="stat__headline">
               {lead.data.summary}を、{jpMonth(lead.data.released)}から公開しています。
             </h1>
-            <p class="stat__qualifier tnum">
-              {lead.data.name} · {lead.data.forks} フォーク ·{" "}
-              {lead.data.stack.join(" / ")}
-              {lead.data.metricsAsOf && (
-                <span class="stat__asof">（{jpMonth(lead.data.metricsAsOf)}時点）</span>
-              )}
-            </p>
             <div class="stat__body">{LeadContent && <LeadContent />}</div>
+            <Facts facts={leadFacts} />
             <Chip href={lead.data.url} label="GitHub で見る" external />
           </section>
         )
@@ -133,18 +150,6 @@ const jpMonth = (yearMonth: string): string => {
     font-weight: 500;
     max-inline-size: var(--measure-ja);
     margin-block: var(--space-sm) var(--space-xs);
-  }
-
-  .stat__qualifier {
-    font-size: var(--text-sm);
-    color: var(--color-muted);
-    border-block-start: var(--rule-hair) solid var(--color-rule);
-    padding-block-start: var(--space-xs);
-    max-inline-size: var(--measure-ja);
-  }
-
-  .stat__asof {
-    margin-inline-start: var(--space-2xs);
   }
 
   .stat__body {

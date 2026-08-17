@@ -7,6 +7,8 @@
 
 export interface Link {
   label: string;
+  /** サイドレール用の短いラベル。和文は字幅が広く、長いと折り返す。 */
+  short?: string;
   href: string;
   /** 外部リンクは rel を付ける。self 参照のプロフィールは me も付ける。 */
   rel?: string;
@@ -14,11 +16,11 @@ export interface Link {
 
 /** サイト内のセクション。フッターの目次に使う。 */
 export const sections: Link[] = [
-  { label: "コミュニティ", href: "/community/" },
-  { label: "OSS", href: "/oss/" },
-  { label: "職務経歴書", href: "/resume/" },
-  { label: "スキル", href: "/skill/" },
-  { label: "執筆", href: "/blog/" },
+  { label: "コミュニティ", short: "運営", href: "/community/" },
+  { label: "OSS", short: "OSS", href: "/oss/" },
+  { label: "職務経歴書", short: "経歴", href: "/resume/" },
+  { label: "スキル", short: "技術", href: "/skill/" },
+  { label: "執筆", short: "執筆", href: "/blog/" },
 ];
 
 export const github: Link = {

@@ -1,0 +1,176 @@
+---
+import { sections, formalContact } from "@/config/site";
+
+// N3 · Side-rail
+// knobs: side=left · width=16ch · indicator=filled bar
+//
+// 前は N9 Edge-aligned minimal（リンク列なし）だった。空白を設計にする形だが、
+// 行き先が6つあるサイトでこれは誤りだった。訪問者はフッターまでスクロールしないと
+// 他のページの存在に気づけない。gate 42 も「リンクの無いナビは行き先が2つの場合のみ
+// 正当化される」としている。
+//
+// N3 の基本形は回転ワードマーク＋ドット表示だが、それはページ内セクション用。
+// 「読まずに分かる」ことが目的なので、回転させずラベルを出す。
+
+const path = Astro.url.pathname;
+
+// 末尾スラッシュの有無に関わらず現在地を判定する。
+const isCurrent = (href: string): boolean => {
+  const normalise = (value: string): string => value.replace(/\/+$/, "") || "/";
+  return normalise(path) === normalise(href);
+};
+---
+
+<nav class="rail" aria-label="サイト内">
+  <div class="rail__inner">
+    <a class="rail__wordmark" href="/" aria-current={isCurrent("/") ? "page" : undefined}>
+      takumi0706
+    </a>
+
+    <ul class="rail__list">
+      {
+        sections.map((section) => (
+          <li>
+            <a
+              class="rail__link"
+              href={section.href}
+              aria-current={isCurrent(section.href) ? "page" : undefined}
+            >
+              {section.short ?? section.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <a class="rail__contact" href={formalContact.href} rel={formalContact.rel}>
+      連絡する<span aria-hidden="true">→</span>
+    </a>
+  </div>
+</nav>
+
+<style>
+  .rail {
+    grid-area: rail;
+  }
+
+  .rail__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-md) var(--space-lg) var(--page-gutter);
+  }
+
+  .rail__wordmark {
+    font-family: var(--font-outlier);
+    font-size: var(--text-base);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .rail__list {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .rail__link {
+    display: block;
+    /* gate 49: クリック可能なテキストは決して2行にしない。 */
+    white-space: nowrap;
+    /* 現在地の帯を置くぶんだけ内側に寄せる。 */
+    padding: var(--space-3xs) 0 var(--space-3xs) var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    border-inline-start: 2px solid transparent;
+    transition:
+      color var(--dur-short) var(--ease-out),
+      border-color var(--dur-short) var(--ease-out);
+  }
+
+  .rail__link:hover {
+    color: var(--color-ink);
+    border-inline-start-color: var(--color-rule);
+  }
+
+  .rail__link:active {
+    color: var(--color-muted);
+  }
+
+  /* 現在地。色ではなく帯で示す。色だけだと見分けがつきにくい。 */
+  .rail__link[aria-current="page"] {
+    color: var(--color-ink);
+    font-weight: 600;
+    border-inline-start-color: var(--color-ink);
+  }
+
+  .rail__contact {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    white-space: nowrap;
+    border-block-start: var(--rule-hair) solid var(--color-rule);
+    padding-block-start: var(--space-sm);
+    transition: color var(--dur-short) var(--ease-out);
+  }
+
+  .rail__contact:hover {
+    color: var(--color-ink);
+  }
+
+  /* 60rem 以上: 左端に固定して常時見せる。 */
+  @media (width >= 60rem) {
+    .rail__inner {
+      position: sticky;
+      inset-block-start: 0;
+      min-block-size: 100dvh;
+      justify-content: start;
+    }
+
+    .rail__contact {
+      margin-block-start: auto;
+    }
+  }
+
+  /* 60rem 未満: 上部に横並びで畳む。固定はしない（画面が狭いので場所を食う）。 */
+  @media (width < 60rem) {
+    .rail__inner {
+      padding: var(--space-md) var(--page-gutter);
+      gap: var(--space-sm);
+    }
+
+    .rail__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2xs) var(--space-md);
+    }
+
+    .rail__link {
+      padding: var(--space-3xs) 0;
+      border-inline-start: 0;
+      border-block-end: 2px solid transparent;
+    }
+
+    .rail__link:hover {
+      border-inline-start-color: transparent;
+      border-block-end-color: var(--color-rule);
+    }
+
+    .rail__link[aria-current="page"] {
+      border-inline-start-color: transparent;
+      border-block-end-color: var(--color-ink);
+    }
+
+    .rail__contact {
+      display: none;
+    }
+  }
+
+  /* 40rem 未満: タップ領域を確保する。 */
+  @media (width < 40rem) {
+    .rail__link {
+      min-block-size: 44px;
+      display: flex;
+      align-items: center;
+    }
+  }
+</style>

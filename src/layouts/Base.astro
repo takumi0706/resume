@@ -5,7 +5,7 @@ import "@fontsource-variable/geist-mono";
 import "@styles/fonts.css";
 import "@styles/tokens.css";
 import "@styles/base.css";
-import SiteHeader from "@components/SiteHeader.astro";
+import SiteNav from "@components/SiteNav.astro";
 import SiteFooter from "@components/SiteFooter.astro";
 
 interface Props {
@@ -59,15 +59,51 @@ const { title, description, preloadDisplayWeight = true } = Astro.props;
   </head>
   <body>
     <a class="skip-link" href="#main">本文へスキップ</a>
-    <SiteHeader />
-    <main id="main">
-      <slot />
-    </main>
-    <SiteFooter />
+    <div class="page">
+      <SiteNav />
+      <main class="page__main" id="main">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
   </body>
 </html>
 
 <style>
+  /* サイドレールと本文の2カラム。60rem 未満では縦に積む。 */
+  .page {
+    display: grid;
+    grid-template-areas:
+      "rail"
+      "main"
+      "footer";
+  }
+
+  .page__main {
+    grid-area: main;
+    min-inline-size: 0;
+  }
+
+  .page :global(.site-footer) {
+    grid-area: footer;
+  }
+
+  @media (width >= 60rem) {
+    .page {
+      grid-template-columns: var(--rail-width) minmax(0, 1fr);
+      grid-template-areas:
+        "rail main"
+        "rail footer";
+      align-items: start;
+    }
+
+    /* 本文は中央寄せにしない。レールとの間に死んだ余白ができるため、
+     * レールのすぐ隣から始める。 */
+    .page :global(.shell) {
+      margin-inline: 0;
+    }
+  }
+
   .skip-link {
     position: absolute;
     inset-block-start: var(--space-2xs);

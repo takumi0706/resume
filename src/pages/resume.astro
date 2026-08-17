@@ -2,6 +2,8 @@
 import { getCollection, render } from "astro:content";
 import Base from "@layouts/Base.astro";
 import { formalContact, github, zenn } from "@/config/site";
+import Facts from "@components/Facts.astro";
+import type { Fact } from "@components/Facts.astro";
 
 // 02 · Long Document
 // 仕切りは余白。罫線を引かない（トップページの太罫と対照させる）。
@@ -34,6 +36,30 @@ const workSections = await Promise.all(
 const schools = education.sort((a, b) => byDescending(a.data.start, b.data.start));
 const honours = awards.sort((a, b) => byDescending(a.data.date, b.data.date));
 const communityCount = community.length;
+
+const current = work.find((entry) => entry.data.end === null && entry.data.employment === "正社員");
+const latestSchool = schools.at(0);
+
+const profile: Fact[] = [
+  { key: "氏名", value: "小山田 卓生", sub: "おやまだ たくみ" },
+  { key: "職種", value: "サーバーサイドエンジニア" },
+];
+
+if (current) {
+  profile.push({ key: "現職", value: current.data.company, sub: current.data.title });
+  profile.push({ key: "担当", value: current.data.summary });
+}
+
+if (latestSchool) {
+  profile.push({
+    key: "学歴",
+    value: latestSchool.data.school,
+    sub: `${latestSchool.data.faculty ?? ""} ${jpMonth(latestSchool.data.end)}卒業`.trim(),
+    tnum: true,
+  });
+}
+
+profile.push({ key: "実務", value: `${work.length}社`, sub: "2024年10月から", tnum: true });
 ---
 
 <Base
@@ -44,17 +70,12 @@ const communityCount = community.length;
     <div class="shell">
       <h1 class="doc__title">職務経歴書</h1>
 
-      <p class="doc__lede">
-        小山田 卓生（おやまだ たくみ）。サーバーサイドエンジニア。2026年3月に金沢大学
-        電気電子情報通信学類を卒業し、同年4月に LINEヤフー株式会社へ入社しました。
-        学生時代から複数社で開発に携わり、現在は飲食店向けの AI
-        予約プロダクトのサーバーサイドを担当しています。
-      </p>
+      {/* 冒頭は散文にしない。読まずに分かる形で置く。 */}
+      <Facts facts={profile} />
 
-      <p>
-        技術と並行して、技術カンファレンスの運営にも継続的に関わっています。
-        <a class="doc__link" href="/community/">運営に携わったイベントは{communityCount}件</a>で、
-        2026年10月開催の Hono Conference in Tokyo 2026 では実行委員長を務めています。
+      <p class="doc__note">
+        技術と並行して、カンファレンスの運営にも継続的に関わっています。
+        <a class="doc__link" href="/community/">運営に携わったイベントは{communityCount}件</a>です。
       </p>
 
       <h2 class="doc__head">職務経歴</h2>
@@ -163,9 +184,9 @@ const communityCount = community.length;
     margin-block-end: var(--space-lg);
   }
 
-  .doc__lede {
-    font-size: var(--text-md);
-    margin-block-end: var(--space-md);
+  .doc__note {
+    margin-block-start: var(--space-md);
+    color: var(--color-ink-2);
   }
 
   .doc :global(p) {

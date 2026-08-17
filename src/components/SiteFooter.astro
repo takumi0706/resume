@@ -17,9 +17,11 @@ import BrandIcon from "@components/BrandIcon.astro";
       <nav class="site-footer__links" aria-label="サイト内">
         {
           sections.map((item) => (
-            <a class="site-footer__link" href={item.href}>
-              {item.label}
-            </a>
+            <span class="site-footer__item">
+              <a class="site-footer__link" href={item.href}>
+                <span class="site-footer__label">{item.label}</span>
+              </a>
+            </span>
           ))
         }
       </nav>
@@ -27,10 +29,12 @@ import BrandIcon from "@components/BrandIcon.astro";
       <nav class="site-footer__links" aria-label="外部リンク">
         {
           elsewhere.map((item) => (
-            <a class="site-footer__link" href={item.href} rel={item.rel}>
-              {item.icon && <BrandIcon slug={item.icon} />}
-              {item.label}
-            </a>
+            <span class="site-footer__item">
+              <a class="site-footer__link" href={item.href} rel={item.rel}>
+                {item.icon && <BrandIcon slug={item.icon} />}
+                <span class="site-footer__label">{item.label}</span>
+              </a>
+            </span>
           ))
         }
       </nav>
@@ -68,19 +72,25 @@ import BrandIcon from "@components/BrandIcon.astro";
     gap: var(--space-sm);
   }
 
-  /* 中黒で区切る。欧文サイトの pipe や slash ではなく和文の約物を使う。 */
-  .site-footer__links a + a::before {
+  /* 中黒はリンクの外に置く。リンクの ::before にすると下線が引かれ、
+     クリック領域にも入る。さらに inline-flex の最初の要素になるため、
+     アイコンを持つリンクと持たないリンクでベースラインの基準が変わり、
+     並びが揃わなくなる。 */
+  .site-footer__item + .site-footer__item::before {
     content: "·";
-    color: var(--color-rule);
+    color: var(--color-muted);
     margin-inline-end: var(--space-sm);
   }
 
+  /* inline のまま置く。inline-flex にするとベースラインの基準が
+     最初のフレックス要素になり、アイコンの有無で並びがズレる。 */
   .site-footer__link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-3xs);
     color: var(--color-ink-2);
     white-space: nowrap;
+  }
+
+  /* 下線はラベルにだけ引く。リンク全体に引くとアイコンの下にも線が走る。 */
+  .site-footer__label {
     text-decoration: underline;
     text-decoration-color: var(--color-muted);
     text-decoration-thickness: 1px;
@@ -92,9 +102,12 @@ import BrandIcon from "@components/BrandIcon.astro";
       text-decoration-color var(--dur-short) var(--ease-out);
   }
 
+  .site-footer__link:hover .site-footer__label {
+    text-decoration-color: var(--color-ink);
+  }
+
   .site-footer__link:hover {
     color: var(--color-ink);
-    text-decoration-color: var(--color-ink);
   }
 
   .site-footer__link:active {

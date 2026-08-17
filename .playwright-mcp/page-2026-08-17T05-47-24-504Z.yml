@@ -1,0 +1,215 @@
+- generic [active] [ref=f3e1]:
+  - link "本文へスキップ" [ref=f3e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=f3e3]:
+    - navigation "サイト内" [ref=f3e4]:
+      - generic [ref=f3e5]:
+        - link "takumi0706" [ref=f3e6] [cursor=pointer]:
+          - /url: /
+        - list [ref=f3e8]:
+          - listitem [ref=f3e9]:
+            - link "運営" [ref=f3e10] [cursor=pointer]:
+              - /url: /community/
+          - listitem [ref=f3e11]:
+            - link "OSS" [ref=f3e12] [cursor=pointer]:
+              - /url: /oss/
+          - listitem [ref=f3e13]:
+            - link "経歴" [ref=f3e14] [cursor=pointer]:
+              - /url: /resume/
+          - listitem [ref=f3e15]:
+            - link "技術" [ref=f3e16] [cursor=pointer]:
+              - /url: /skill/
+          - listitem [ref=f3e17]:
+            - link "執筆" [ref=f3e18] [cursor=pointer]:
+              - /url: /blog/
+        - link "連絡する" [ref=f3e19] [cursor=pointer]:
+          - /url: https://www.linkedin.com/in/takumi-oyamada
+          - text: 連絡する→
+    - main [ref=f3e20]:
+      - article [ref=f3e21]:
+        - generic [ref=f3e22]:
+          - heading "職務経歴書" [level=1] [ref=f3e23]
+          - generic [ref=f3e24]:
+            - generic [ref=f3e25]:
+              - term [ref=f3e26]: 氏名
+              - definition [ref=f3e27]:
+                - text: 小山田 卓生
+                - generic [ref=f3e28]: おやまだ たくみ
+            - generic [ref=f3e29]:
+              - term [ref=f3e30]: 職種
+              - definition [ref=f3e31]: サーバーサイドエンジニア
+            - generic [ref=f3e32]:
+              - term [ref=f3e33]: 現職
+              - definition [ref=f3e34]:
+                - text: LINEヤフー株式会社
+                - generic [ref=f3e35]: ソフトウェアエンジニア
+            - generic [ref=f3e36]:
+              - term [ref=f3e37]: 担当
+              - definition [ref=f3e38]: 飲食店向けAI予約プロダクトのサーバーサイド開発
+            - generic [ref=f3e39]:
+              - term [ref=f3e40]: 学歴
+              - definition [ref=f3e41]:
+                - text: 金沢大学
+                - generic [ref=f3e42]: 理工学域 電気電子情報通信学類 情報通信コース 2026年3月卒業
+            - generic [ref=f3e43]:
+              - term [ref=f3e44]: 実務
+              - definition [ref=f3e45]:
+                - text: 5社
+                - generic [ref=f3e46]: 2024年10月から
+          - paragraph [ref=f3e47]:
+            - text: 技術と並行して、カンファレンスの運営にも継続的に関わっています。
+            - link "運営に携わったイベントは5件" [ref=f3e48] [cursor=pointer]:
+              - /url: /community/
+            - text: です。
+          - heading "職務経歴" [level=2] [ref=f3e49]
+          - generic [ref=f3e50]:
+            - heading [level=3] [ref=f3e51]:
+              - link "LINEヤフー株式会社" [ref=f3e52] [cursor=pointer]:
+                - /url: https://www.lycorp.co.jp/
+            - paragraph [ref=f3e53]:
+              - generic [ref=f3e54]: 2026年4月 — 現在
+              - generic [ref=f3e55]: ·ソフトウェアエンジニア
+              - generic [ref=f3e56]: ·正社員
+            - paragraph [ref=f3e57]: Go · TypeScript
+            - generic [ref=f3e58]:
+              - paragraph [ref=f3e59]: AI による電話応対から予約条件の確認、予約基盤との連携、予約成立までを支えるプロダクトのサーバーサイドを担当しています。
+              - list [ref=f3e60]:
+                - listitem [ref=f3e61]: — リアルタイム音声対話の品質改善
+                - listitem [ref=f3e62]: — 予約ルール・在庫情報を踏まえた会話制御
+                - listitem [ref=f3e63]: — エージェントのガードレール・フォールバック設計
+                - listitem [ref=f3e64]: — 社内外システムとの連携構築
+          - generic [ref=f3e65]:
+            - heading [level=3] [ref=f3e66]:
+              - link "株式会社ナガセ" [ref=f3e67] [cursor=pointer]:
+                - /url: https://www.toshin.com/nagase/
+            - paragraph [ref=f3e68]:
+              - generic [ref=f3e69]: 2025年5月 — 現在
+              - generic [ref=f3e70]: ·Part Tech Lead
+              - generic [ref=f3e71]: ·アルバイト
+              - generic [ref=f3e72]: ·リモート
+            - paragraph [ref=f3e73]: TypeScript · Node.js · Drizzle ORM · AWS · Terraform
+            - generic [ref=f3e74]:
+              - paragraph [ref=f3e75]: 2年間停滞していた社内 DX のプロジェクトに途中から参画しました。参画時点で当初の計画が陳腐化していたため、計画の立て直しから着手しています。
+              - list [ref=f3e76]:
+                - listitem [ref=f3e77]: — 利用部署との連携を取り直し、要件を現状に合わせて再定義
+                - listitem [ref=f3e78]: — Slack とチケットシステムを導入し、利用部署の意見を即時に吸い上げる体制を整備
+                - listitem [ref=f3e79]: — 並行して業務アプリケーションを設計・開発し、1年弱でリリース
+              - paragraph [ref=f3e80]: リリース後は保守運用も担当しています。既存の運用と並行稼働させながら、段階的に移行を進めました。
+              - list [ref=f3e81]:
+                - listitem [ref=f3e82]: — 権限管理を RBAC へ移行。新旧を並走させ、Feature Flag で切り替えることで停止せずに入れ替えた
+                - listitem [ref=f3e83]: — Terraform でインフラを管理
+                - listitem [ref=f3e84]: — 障害の検知と通知を整備
+                - listitem [ref=f3e85]: — 運用の定期作業（ログ確認・依存更新・脆弱性対応）を AI エージェントのスキルとして仕組み化
+          - generic [ref=f3e86]:
+            - heading [level=3] [ref=f3e87]:
+              - link "株式会社メモアカ" [ref=f3e88] [cursor=pointer]:
+                - /url: https://corp.memoaca.com/
+            - paragraph [ref=f3e89]:
+              - generic [ref=f3e90]: 2025年2月 — 現在
+              - generic [ref=f3e91]: ·バックエンドエンジニア
+              - generic [ref=f3e92]: ·インターン
+              - generic [ref=f3e93]: ·リモート
+            - paragraph [ref=f3e94]: TypeScript · Node.js · AWS
+            - generic [ref=f3e95]:
+              - paragraph [ref=f3e96]:
+                - text: 顔と名前を覚える脳トレアプリ「
+                - link "カオナマエ" [ref=f3e97] [cursor=pointer]:
+                  - /url: https://prtimes.jp/main/html/rd/p/000000002.000142440.html
+                - text: 」の API サーバーを開発しています。
+              - list [ref=f3e98]:
+                - listitem [ref=f3e99]: — ゲーム内通貨の加減算と残高取得の API
+                - listitem [ref=f3e100]: — プッシュ通知の基盤を一式実装。デバイストークンの登録から、トピックの登録・解除、配信、購読状態の同期まで
+                - listitem [ref=f3e101]: — 同期処理のバッチ化
+                - listitem [ref=f3e102]: — ライフ回復と広告視聴回数の管理
+                - listitem [ref=f3e103]: — ローカル開発環境の整備
+          - generic [ref=f3e104]:
+            - heading [level=3] [ref=f3e105]:
+              - link "株式会社ドリコム" [ref=f3e106] [cursor=pointer]:
+                - /url: https://drecom.co.jp/
+            - paragraph [ref=f3e107]:
+              - generic [ref=f3e108]: 2024年10月 — 2024年12月
+              - generic [ref=f3e109]: ·SRE
+              - generic [ref=f3e110]: ·インターン
+            - paragraph [ref=f3e112]: SRE としてインフラストラクチャ領域の業務に取り組みました。
+          - generic [ref=f3e113]:
+            - heading "Kyoto Development Institute" [level=3] [ref=f3e114]
+            - paragraph [ref=f3e115]:
+              - generic [ref=f3e116]: 2024年4月 — 2024年9月
+              - generic [ref=f3e117]: ·フロントエンド / バックエンドエンジニア
+              - generic [ref=f3e118]: ·インターン
+            - paragraph [ref=f3e120]: フロントエンドとバックエンドの双方の開発に携わりました。
+          - heading "学歴" [level=2] [ref=f3e121]
+          - list [ref=f3e122]:
+            - listitem [ref=f3e123]:
+              - generic [ref=f3e124]: 2023年4月 — 2026年3月
+              - generic [ref=f3e125]:
+                - link "金沢大学" [ref=f3e126] [cursor=pointer]:
+                  - /url: https://www.kanazawa-u.ac.jp/
+                - generic [ref=f3e127]: 理工学域 電気電子情報通信学類 情報通信コース
+            - listitem [ref=f3e128]:
+              - generic [ref=f3e129]: 2022年4月 — 2023年3月
+              - generic [ref=f3e130]:
+                - link "金沢大学" [ref=f3e131] [cursor=pointer]:
+                  - /url: https://www.kanazawa-u.ac.jp/
+                - generic [ref=f3e132]: 理工学域（教養課程）
+            - listitem [ref=f3e133]:
+              - generic [ref=f3e134]: 2019年4月 — 2022年3月
+              - generic [ref=f3e135]: 山手学院高等学校
+          - heading "受賞" [level=2] [ref=f3e136]
+          - list [ref=f3e137]:
+            - listitem [ref=f3e138]:
+              - generic [ref=f3e139]: 2025-05-31
+              - generic [ref=f3e140]:
+                - text: 内定者Hack U 2025 LINEヤフー賞
+                - generic [ref=f3e141]: 作品「PostureGuard」／チーム「ちーむろく」
+          - heading "連絡先" [level=2] [ref=f3e142]
+          - paragraph [ref=f3e143]:
+            - text: ソフトウェアの設計・開発、業務アプリケーションの内製化支援、AI・LLM の組み込みについてのご相談を受け付けています。
+            - link "LinkedIn" [ref=f3e144] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/takumi-oyamada
+            - text: からご連絡ください。作ったものは
+            - link "GitHub" [ref=f3e145] [cursor=pointer]:
+              - /url: https://github.com/takumi0706
+            - text: に、書いたものは
+            - link "Zenn" [ref=f3e146] [cursor=pointer]:
+              - /url: https://zenn.dev/takumi0706
+            - text: にあります。
+    - contentinfo [ref=f3e147]:
+      - generic [ref=f3e148]:
+        - separator [ref=f3e149]
+        - generic [ref=f3e150]:
+          - navigation "サイト内" [ref=f3e151]:
+            - link "コミュニティ" [ref=f3e153] [cursor=pointer]:
+              - /url: /community/
+            - generic [ref=f3e154]:
+              - text: ·
+              - link "OSS" [ref=f3e155] [cursor=pointer]:
+                - /url: /oss/
+            - generic [ref=f3e156]:
+              - text: ·
+              - link "職務経歴書" [ref=f3e157] [cursor=pointer]:
+                - /url: /resume/
+            - generic [ref=f3e158]:
+              - text: ·
+              - link "スキル" [ref=f3e159] [cursor=pointer]:
+                - /url: /skill/
+            - generic [ref=f3e160]:
+              - text: ·
+              - link "執筆" [ref=f3e161] [cursor=pointer]:
+                - /url: /blog/
+          - navigation "外部リンク" [ref=f3e162]:
+            - link "GitHub" [ref=f3e164] [cursor=pointer]:
+              - /url: https://github.com/takumi0706
+            - generic [ref=f3e167]:
+              - text: ·
+              - link "X" [ref=f3e168] [cursor=pointer]:
+                - /url: https://x.com/1ye_q
+            - generic [ref=f3e171]:
+              - text: ·
+              - link "Zenn" [ref=f3e172] [cursor=pointer]:
+                - /url: https://zenn.dev/takumi0706
+            - generic [ref=f3e175]:
+              - text: ·
+              - link "LinkedIn" [ref=f3e176] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/takumi-oyamada
+          - generic [ref=f3e177]: © 2026 Takumi Oyamada

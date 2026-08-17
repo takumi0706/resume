@@ -48,8 +48,17 @@ const path =
 
 <style>
   .brand-icon {
+    /* base.css のリセットが svg { display: block } を当てている。
+       単独の画像には正しいが、テキストと並べるアイコンには誤り。
+       ここで打ち消さないとアイコンが自分の行を占有し、ラベルの上に乗る。 */
+    display: inline-block;
+    inline-size: 1em;
+    block-size: 1em;
     /* テキストの視覚的な中心に合わせる。ベースラインに揃えると沈んで見える。 */
     vertical-align: -0.15em;
+    /* アイコンは常にラベルの前に置く。余白がないと X は「𝕏 X」、
+       Zenn は「//Zenn」と地続きに読めてしまう。 */
+    margin-inline-end: 0.4em;
     flex-shrink: 0;
   }
 </style>

@@ -49,9 +49,6 @@ const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.leng
     <div class="shell">
       <section class="skills__hero">
         <h1 class="skills__title">使ってきた技術</h1>
-        <p class="skills__lede">
-          具体を知らない現場でも、抽象が同じなら早く動けます。LINEヤフーで配属直後に手を動かせたのも、そのプロダクト固有の事情ではなく、構造の側を先に分かっていたからでした。
-        </p>
         <Chip href="/resume/" label="業務の詳細は職務経歴書へ" />
       </section>
 
@@ -93,12 +90,6 @@ const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.leng
     font-size: var(--text-lg);
     font-weight: 600;
     margin-block-end: var(--space-sm);
-  }
-
-  .skills__lede {
-    max-inline-size: var(--measure-ja);
-    color: var(--color-ink-2);
-    margin-block-end: var(--space-md);
   }
 
   /* --- 格子 --------------------------------------------------------------

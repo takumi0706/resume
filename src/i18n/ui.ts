@@ -385,7 +385,9 @@ const en: Strings = {
   blogTitle: "Writing — Takumi Oyamada",
   blogDescription:
     "Articles Takumi Oyamada (@takumi0706) has written on Zenn, in Japanese: back-end development, AWS, TypeScript and engineering process.",
-  blogLede: "Written on Zenn · {range} · {count} articles",
+  /* 記事が日本語であることをページ本体で先に言う。
+     meta description にしか書いていないと、英語の読者は開いて初めて気づく。 */
+  blogLede: "Written on Zenn, in Japanese · {range} · {count} articles",
 
   notFoundTitle: "Page not found — Takumi Oyamada",
   notFoundDescription: "The page you were looking for does not exist.",

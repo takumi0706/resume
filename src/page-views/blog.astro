@@ -38,7 +38,10 @@ const range =
 <Base title={t.blogTitle} description={t.blogDescription} preloadDisplayWeight={false}>
   <article class="index-page">
     <div class="shell">
-      <p class="index-page__lede tnum">{fill(t.blogLede, { range, count: total })}</p>
+      {/* 目録の見出しはこの一段落。<p> にしていたためページに h1 が無く、
+          見出しジャンプの着地点が無い文書になっていた。
+          見た目は変えずに h1 にする（Index-First はディスプレイサイズを使わない）。 */}
+      <h1 class="index-page__lede tnum">{fill(t.blogLede, { range, count: total })}</h1>
 
       {
         byYear.map((group) => (
@@ -77,6 +80,8 @@ const range =
   .index-page__lede {
     color: var(--color-muted);
     font-size: var(--text-sm);
+    /* h1 の UA 既定は bold。段落だったときの見た目を保つために明示する。 */
+    font-weight: 400;
     margin-block-end: var(--space-xl);
   }
 

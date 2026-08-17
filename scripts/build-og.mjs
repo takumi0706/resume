@@ -42,8 +42,10 @@ const TOKENS_PATH = "src/styles/tokens.css";
 const WIDTH = 1200;
 const HEIGHT = 630;
 
-/** ページ名に出ない、カードの固定文言。 */
-const ROLE = "サーバーサイドエンジニア";
+/* ページ名に出ない、カードの固定文言。 */
+
+/** 肩書きは言語ごとに持つ。英語トップのカードに和文の肩書きを焼かない。 */
+const ROLE = { ja: "サーバーサイドエンジニア", en: "Server-side engineer" };
 const HANDLE = "takumi0706";
 const NAME_JA = "小山田 卓生";
 const NAME_LATIN = "Takumi Oyamada";
@@ -154,8 +156,14 @@ function cardFor(htmlPath, html) {
   const title = match ? match[1].trim() : "";
   const slug = slugFor(htmlPath);
 
+  // 各言語のトップは「名前が主役」のカード。
+  // en を汎用の分岐に落とすと、題名の Takumi Oyamada と下端の
+  // 「小山田 卓生 — Takumi Oyamada」で同じ名前が1枚に2回出る。
   if (slug === "index") {
-    return { slug, title: NAME_LATIN, subtitle: NAME_JA, footer: ROLE };
+    return { slug, title: NAME_LATIN, subtitle: NAME_JA, footer: ROLE.ja };
+  }
+  if (slug === "en") {
+    return { slug, title: NAME_LATIN, subtitle: NAME_JA, footer: ROLE.en };
   }
   return {
     slug,

@@ -3,7 +3,7 @@ title: Part Tech Lead
 summary: In-house development of a business application, and its maintenance
 ---
 
-I joined a company-wide DX project that had been stalled for two years. By the time I arrived the original plan had gone stale, so I started by rebuilding the plan itself.
+I joined an internal DX project that had been stalled for two years. By the time I arrived the original plan had gone stale, so I started by rebuilding the plan itself.
 
 - Re-established contact with the departments that would use the system, and redefined the requirements against the current situation
 - Introduced Slack and a ticket system so that feedback from those departments could be picked up immediately

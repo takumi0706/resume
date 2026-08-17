@@ -26,7 +26,11 @@ interface Props {
 const { title, description, preloadDisplayWeight = true } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL("/icon.png", Astro.site).href;
+
+// OGP カードは scripts/build-og.mjs が dist/og/ に焼く。
+// ファイル名はここと同じ規則で付いている（"/" は index、"/resume/" は resume）。
+const ogSlug = Astro.url.pathname.replace(/^\/+|\/+$/g, "").replace(/\//g, "-") || "index";
+const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
 ---
 
 <!doctype html>
@@ -64,10 +68,15 @@ const ogImage = new URL("/icon.png", Astro.site).href;
     <meta property="og:locale" content="ja_JP" />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    {/* 寸法を書くと、画像を取りに行く前に枠を確保できる。 */}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    {/* title に氏名が入っているので、ここで足すと同じ名前が2回出る。 */}
+    <meta property="og:image:alt" content={title} />
     <link rel="canonical" href={canonical} />
-    {/* アイコンは正方形なので summary_large_image ではなく summary を使う。
-        横長でない画像を large 指定すると左右が切られる。 */}
-    <meta name="twitter:card" content="summary" />
+    {/* 1200x630 の横長カードなので large を使う。
+        以前は正方形のアイコンを出していたため summary にしていた。 */}
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <a class="skip-link" href="#main">本文へスキップ</a>

@@ -10,13 +10,14 @@
     "fonts": "node scripts/subset-jp-font.mjs",
     "zenn": "node scripts/fetch-zenn.mjs",
     "dev": "pnpm run fonts && astro dev",
-    "build": "pnpm run fonts && astro build",
+    "build": "pnpm run fonts && astro build && pnpm run og",
     "preview": "astro preview",
     "check": "pnpm run fonts && astro check",
     "astro": "astro",
     "check:links": "node scripts/check-links.mjs",
     "ci": "pnpm run check && pnpm run build && pnpm run check:links",
-    "deploy": "pnpm run ci && wrangler deploy"
+    "deploy": "pnpm run ci && wrangler deploy",
+    "og": "node scripts/build-og.mjs"
   },
   "dependencies": {
     "astro": "^7.2.2"
@@ -26,6 +27,8 @@
     "@fontsource-variable/geist": "^5.3.0",
     "@fontsource-variable/geist-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans-jp": "^5.3.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.29.0",
     "simple-icons": "^16.28.0",
     "subset-font": "^2.5.0",
     "typescript": "^6.0.3",

@@ -75,11 +75,27 @@ async function main() {
   const failures = [];
   let checked = 0;
   let pages = 0;
+  let cards = 0;
 
   for await (const file of htmlFiles(DIST)) {
     pages += 1;
     const html = await readFile(file, "utf8");
     const hrefs = [...html.matchAll(/\shref="([^"]*)"/g)].map((match) => match[1]);
+
+    // og:image は scripts/build-og.mjs の生成物を指す。
+    // ファイル名の規則を Base.astro と build-og.mjs の2箇所で持っているので、
+    // ずれると SNS 側でだけ画像が出なくなる。ここで検出する。
+    const card = html.match(/<meta property="og:image" content="([^"]*)"/);
+    if (card) {
+      cards += 1;
+      const url = card[1];
+      const pathname = /^https?:/.test(url) ? new URL(url).pathname : url;
+      if (!(await exists(join(DIST, pathname.replace(/^\/+/, ""))))) {
+        failures.push({ file, href: url, reason: "og:image の画像が生成されていません" });
+      }
+    } else {
+      failures.push({ file, href: "(なし)", reason: "og:image がありません" });
+    }
 
     for (const href of hrefs) {
       // 外部・プロトコル指定・データURIは対象外
@@ -131,10 +147,10 @@ async function main() {
     }
   }
 
-  console.log(`内部リンク検査: ${pages} ページ / ${checked} リンク`);
+  console.log(`内部リンク検査: ${pages} ページ / ${checked} リンク / OGP ${cards} 枚`);
 
   if (failures.length > 0) {
-    console.error(`\n${failures.length} 件のリンク切れ:\n`);
+    console.error(`\n${failures.length} 件の不備:\n`);
     for (const failure of failures) {
       console.error(`  ${failure.file}`);
       console.error(`    href="${failure.href}"`);
@@ -143,7 +159,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("リンク切れなし");
+  console.log("リンク切れなし・OGP 欠落なし");
 }
 
 await main();

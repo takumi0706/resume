@@ -9,6 +9,7 @@ import "@styles/tokens.css";
 import "@styles/base.css";
 import SiteNav from "@components/SiteNav.astro";
 import SiteFooter from "@components/SiteFooter.astro";
+import LocaleSwitch from "@components/LocaleSwitch.astro";
 import {
   splitLocale,
   localePath,
@@ -126,7 +127,10 @@ const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
   <body>
     <a class="skip-link" href="#main">{t.skipToContent}</a>
     <div class="page">
-      <SiteNav alternatePath={alternatePath} />
+      {/* 言語切替えは本文カラムの右上。DOM 上も本文より前に置いて、
+          タブ移動で早い段階に触れられるようにする。 */}
+      <LocaleSwitch alternatePath={alternatePath} />
+      <SiteNav />
       <main class="page__main" id="main">
         <slot />
       </main>
@@ -139,6 +143,8 @@ const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
   /* サイドレールと本文の2カラム。60rem 未満では縦に積む。 */
   .page {
     display: grid;
+    /* 言語切替えの絶対配置の基準。 */
+    position: relative;
     grid-template-areas:
       "rail"
       "main"

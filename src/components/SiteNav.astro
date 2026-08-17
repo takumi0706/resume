@@ -1,6 +1,6 @@
 ---
 import { sections, formalContact } from "@/config/site";
-import { splitLocale, localePath, locales, localeLabel } from "@i18n/config";
+import { splitLocale, localePath } from "@i18n/config";
 import { ui } from "@i18n/ui";
 
 // N3 · Side-rail
@@ -14,16 +14,6 @@ import { ui } from "@i18n/ui";
 // N3 の基本形は回転ワードマーク＋ドット表示だが、それはページ内セクション用。
 // 「読まずに分かる」ことが目的なので、回転させずラベルを出す。
 
-interface Props {
-  /**
-   * 言語切替えの行き先。既定はいま見ているページの対応する言語版。
-   * 対応する言語版が存在しないページ（404）だけが、明示的に別の行き先を渡す。
-   */
-  alternatePath?: string;
-}
-
-const { alternatePath } = Astro.props;
-
 const { locale, path } = splitLocale(Astro.url.pathname);
 const t = ui[locale];
 
@@ -31,16 +21,6 @@ const t = ui[locale];
 // ロケールを外した path で比べるので、/en/ でもそのまま効く。
 const normalise = (value: string): string => value.replace(/\/+$/, "") || "/";
 const isCurrent = (target: string): boolean => normalise(path) === normalise(target);
-
-// 言語切替え。いま見ているページの対応する言語版へ送る。
-// 一律でトップに送ると、読んでいたページを見失う。
-const alternates = locales
-  .filter((other) => other !== locale)
-  .map((other) => ({
-    label: localeLabel[other],
-    href: localePath(other, alternatePath ?? path),
-    lang: other,
-  }));
 ---
 
 <nav class="rail" aria-label={t.siteLinks}>
@@ -79,20 +59,10 @@ const alternates = locales
       }
     </ul>
 
-    <div class="rail__foot">
-      {/* 言語切替え。相手の言語でラベルを書く（英語ページには「日本語」と出す）。
-          hreflang を付けて、切替え先が何語かを機械にも伝える。 */}
-      {alternates.map((alternate) => (
-        <a class="rail__lang" href={alternate.href} hreflang={alternate.lang} lang={alternate.lang}>
-          {alternate.label}
-        </a>
-      ))}
-
-      <a class="rail__contact" href={formalContact.href} rel={formalContact.rel}>
-        {t.railContact}
-        <span aria-hidden="true">→</span>
-      </a>
-    </div>
+    <a class="rail__contact" href={formalContact.href} rel={formalContact.rel}>
+      {t.railContact}
+      <span aria-hidden="true">→</span>
+    </a>
   </div>
 </nav>
 
@@ -179,36 +149,6 @@ const alternates = locales
     border-inline-start-color: var(--color-ink);
   }
 
-  .rail__foot {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-    align-items: start;
-  }
-
-  /* 言語切替え。現在地の帯（レールのリンク）と区別するため下線で出す。 */
-  .rail__lang {
-    font-size: var(--text-sm);
-    color: var(--color-muted);
-    white-space: nowrap;
-    text-decoration: underline;
-    text-decoration-color: var(--color-rule);
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.15em;
-    transition:
-      color var(--dur-short) var(--ease-out),
-      text-decoration-color var(--dur-short) var(--ease-out);
-  }
-
-  .rail__lang:hover {
-    color: var(--color-ink);
-    text-decoration-color: var(--color-ink);
-  }
-
-  .rail__lang:active {
-    color: var(--color-muted);
-  }
-
   /* 罫線は引かない。ページを閉じる線はフッターの全幅の1本だけにする。
      ここにも引くと、レール幅の短い線と本文幅の線が近い高さで2本並ぶ。 */
   .rail__contact {
@@ -231,7 +171,7 @@ const alternates = locales
       justify-content: start;
     }
 
-    .rail__foot {
+    .rail__contact {
       margin-block-start: auto;
     }
   }
@@ -267,11 +207,6 @@ const alternates = locales
 
     .rail__contact {
       display: none;
-    }
-
-    .rail__foot {
-      flex-direction: row;
-      gap: var(--space-md);
     }
   }
 

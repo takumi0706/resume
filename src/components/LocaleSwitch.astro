@@ -1,0 +1,98 @@
+---
+import { splitLocale, localePath, locales, localeLabel } from "@i18n/config";
+
+// 言語切替え。
+//
+// レールの下端（「連絡する」の上）に置いていたが、そこは最後まで
+// スクロールしないと目に入らない。言語の切替えは「開いた瞬間に読めない」人が
+// 探すものなので、最初の画面の右上に出す。
+//
+// 位置は .page を基準にした絶対配置。本文カラムの右端（罫線の右端）に揃える。
+// グリッドの行として持たせると、ページ側の上余白がそのぶん押し下げられる。
+
+interface Props {
+  /**
+   * 切替えの行き先。既定はいま見ているページの対応する言語版。
+   * 対応する言語版が存在しないページ（404）だけが、明示的に別の行き先を渡す。
+   */
+  alternatePath?: string;
+}
+
+const { alternatePath } = Astro.props;
+
+const { locale, path } = splitLocale(Astro.url.pathname);
+
+// 相手の言語でラベルを書く（英語ページには「日本語」と出す）。
+const alternates = locales
+  .filter((other) => other !== locale)
+  .map((other) => ({
+    label: localeLabel[other],
+    href: localePath(other, alternatePath ?? path),
+    lang: other,
+  }));
+---
+
+<div class="locale-switch">
+  {
+    alternates.map((alternate) => (
+      <a
+        class="locale-switch__link"
+        href={alternate.href}
+        hreflang={alternate.lang}
+        lang={alternate.lang}
+      >
+        {alternate.label}
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .locale-switch {
+    position: absolute;
+    inset-block-start: var(--space-md);
+    inset-inline-end: var(--page-gutter);
+    z-index: var(--z-overlay);
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .locale-switch__link {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    /* gate 49: クリック可能なテキストは決して2行にしない。 */
+    white-space: nowrap;
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition:
+      color var(--dur-short) var(--ease-out),
+      text-decoration-color var(--dur-short) var(--ease-out);
+  }
+
+  .locale-switch__link:hover {
+    color: var(--color-ink);
+    text-decoration-color: var(--color-ink);
+  }
+
+  .locale-switch__link:active {
+    color: var(--color-muted);
+  }
+
+  /* 60rem 以上: 見出しの高さに合わせる。レール上端の余白と同じ値。 */
+  @media (width >= 60rem) {
+    .locale-switch {
+      inset-block-start: var(--space-lg);
+    }
+  }
+
+  /* 40rem 未満: タップ領域を確保する。 */
+  @media (width < 40rem) {
+    .locale-switch__link {
+      min-block-size: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+</style>

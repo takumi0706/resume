@@ -96,7 +96,12 @@ if (lead) {
             </h1>
             <div class="stat__body">{LeadContent && <LeadContent />}</div>
             <Facts facts={leadFacts} />
-            <Chip href={lead.data.url} label={t.ossCta} external />
+            {/* Chip の余白は Chip 自身が持たない（scoped CSS には外から届かない）。
+                包んで空ける。ここを空けないと定義リストの最終行の罫線に
+                ボタンが接触する。 */}
+            <p class="stat__cta">
+              <Chip href={lead.data.url} label={t.ossCta} external />
+            </p>
           </section>
         )
       }
@@ -183,6 +188,11 @@ if (lead) {
 
   .stat__body :global(p + p) {
     margin-block-start: var(--space-sm);
+  }
+
+  /* 定義リストの最終行とボタンの間。ここが 0 だと罫線にボタンが乗る。 */
+  .stat__cta {
+    margin-block-start: var(--space-lg);
   }
 
   /* --- そのほか ---------------------------------------------------------- */

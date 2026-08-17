@@ -202,13 +202,19 @@ if (upcoming) {
     padding-block: var(--space-lg) var(--space-md);
   }
 
+  /* 欧文なので --text-display をそのまま使える。
+     和文だと字幅が約2倍あり、同じ数値では過大になる（--text-display-ja に落とす）。 */
   .hero__display {
-    /* 和文のディスプレイスケールを使う。--text-display（最大84px）は欧文前提で、
-     * 和文は字幅が約2倍あるため過大になる。 */
-    font-size: var(--text-display-ja);
+    font-size: var(--text-display);
     font-weight: 600;
-    max-inline-size: 18em;
-    text-wrap: balance;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .hero__name {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-block-start: var(--space-2xs);
   }
 
   /* --- now -------------------------------------------------------------- */

@@ -1,6 +1,6 @@
 ---
 // Ft2 · Inline single line
-// knobs: order=wordmark/links/credit · separator=middot · density=spaced
+// knobs: order=links/credit · separator=middot · density=spaced
 //
 // ヘッダーがリンクを持たないぶん、行き先はここが引き受ける。
 // ただし列組みにはしない。4列インデックス＋ソーシャルアイコン行＋小さな著作権表示は
@@ -13,8 +13,6 @@ import { sections, elsewhere } from "@/config/site";
   <div class="shell">
     <hr class="rule-hair" />
     <div class="site-footer__row">
-      <span class="site-footer__wordmark">小山田 卓生</span>
-
       <nav class="site-footer__links" aria-label="サイト内">
         {
           sections.map((item) => (
@@ -35,7 +33,9 @@ import { sections, elsewhere } from "@/config/site";
         }
       </nav>
 
-      <span class="site-footer__credit tnum">© 2026</span>
+      {/* 氏名はここに置く。独立したワードマークを別に立てると、
+          同じページ内で氏名が2回出て重複する。 */}
+      <span class="site-footer__credit tnum">© 2026 小山田 卓生</span>
     </div>
   </div>
 </footer>
@@ -53,12 +53,6 @@ import { sections, elsewhere } from "@/config/site";
     gap: var(--space-sm) var(--space-lg);
     padding-block-start: var(--space-md);
     font-size: var(--text-sm);
-  }
-
-  .site-footer__wordmark {
-    font-family: var(--font-outlier);
-    font-weight: 500;
-    white-space: nowrap;
   }
 
   .site-footer__links {

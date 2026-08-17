@@ -212,8 +212,10 @@ if (upcoming) {
     line-height: 1.05;
   }
 
+  /* 欧文表記を 36px に下げたぶん、和文氏名も 25px → 20px に落とす。
+     36:25 では差が足りず、2行が競って見出しが2つあるように読める。 */
   .hero__name {
-    font-size: var(--text-lg);
+    font-size: var(--text-md);
     font-weight: 600;
     margin-block-start: var(--space-2xs);
   }

@@ -142,12 +142,12 @@ const isCurrent = (href: string): boolean => {
     border-inline-start-color: var(--color-ink);
   }
 
+  /* 罫線は引かない。ページを閉じる線はフッターの全幅の1本だけにする。
+     ここにも引くと、レール幅の短い線と本文幅の線が近い高さで2本並ぶ。 */
   .rail__contact {
     font-size: var(--text-sm);
     color: var(--color-ink-2);
     white-space: nowrap;
-    border-block-start: var(--rule-hair) solid var(--color-rule);
-    padding-block-start: var(--space-sm);
     transition: color var(--dur-short) var(--ease-out);
   }
 

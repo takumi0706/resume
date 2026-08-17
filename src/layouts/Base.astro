@@ -103,9 +103,18 @@ const ogImage = new URL("/icon.png", Astro.site).href;
   @media (width >= 60rem) {
     .page {
       grid-template-columns: var(--rail-width) minmax(0, 1fr);
+      /* フッターは全幅。レールはその手前で終わらせる。
+       *
+       * 以前は "rail footer" にしてレールをページ最下部まで貫かせていた。
+       * すると sticky の解除位置がページ末尾になり、レール下端の「連絡する」が
+       * フッターの帯の内側に落ちてくる。閉じの罫線がレール幅と本文幅で2本並び、
+       * 高さも揃わない（罫線で31px、文字で16pxずれていた）。
+       *
+       * 閉じる線は1本でよい。全幅にすればレール側も終端されるうえ、
+       * sticky はフッターの手前で解除され、揃える対象そのものが無くなる。 */
       grid-template-areas:
         "rail main"
-        "rail footer";
+        "footer footer";
       max-inline-size: calc(var(--rail-width) + var(--page-max));
       margin-inline: auto;
       /* align-items: start にすると .rail の高さが中身の分（100dvh）しか
@@ -120,6 +129,12 @@ const ogImage = new URL("/icon.png", Astro.site).href;
      * どちらもレールを画面の左端に貼り付けたまま考えたのが誤りだった。 */
     .page :global(.shell) {
       margin-inline: 0;
+    }
+
+    /* フッターだけは本文幅に閉じ込めない。レール幅ぶん左に空白が残り、
+       閉じの帯が本文カラムにしか掛かっていないように見える。 */
+    .page :global(.site-footer .shell) {
+      max-inline-size: none;
     }
   }
 

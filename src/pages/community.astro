@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "@layouts/Base.astro";
+import { communityContact } from "@/config/site";
 
 // 12 · Letter
 // 一人称の、書かれたもの。ボタンはフォールドに置かない。
@@ -87,7 +88,7 @@ const jpDate = (date: string): string => {
 
       <p class="letter__signoff">
         スタッフを募集しているカンファレンスがあれば、だいたい顔を出します。
-        <a class="record__link" href="https://x.com/1ye_q" rel="me noopener">声をかけてください →</a>
+        <a class="record__link" href={communityContact.href} rel={communityContact.rel}>声をかけてください →</a>
       </p>
     </div>
   </article>

@@ -6,19 +6,7 @@
 // ただし列組みにはしない。4列インデックス＋ソーシャルアイコン行＋小さな著作権表示は
 // anti-patterns.md が "The AI footer" として名指ししている形。
 
-const sections = [
-  { label: "コミュニティ", href: "/community/" },
-  { label: "OSS", href: "/oss/" },
-  { label: "職務経歴書", href: "/resume/" },
-  { label: "スキル", href: "/skill/" },
-  { label: "執筆", href: "/blog/" },
-];
-
-const elsewhere = [
-  { label: "GitHub", href: "https://github.com/takumi0706" },
-  { label: "X", href: "https://x.com/1ye_q" },
-  { label: "Zenn", href: "https://zenn.dev/takumi0706" },
-];
+import { sections, elsewhere } from "@/config/site";
 ---
 
 <footer class="site-footer">
@@ -40,7 +28,7 @@ const elsewhere = [
       <nav class="site-footer__links" aria-label="外部リンク">
         {
           elsewhere.map((item) => (
-            <a class="site-footer__link" href={item.href} rel="me noopener">
+            <a class="site-footer__link" href={item.href} rel={item.rel}>
               {item.label}
             </a>
           ))

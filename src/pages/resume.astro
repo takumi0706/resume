@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "@layouts/Base.astro";
+import { formalContact, github, zenn } from "@/config/site";
 
 // 02 · Long Document
 // 仕切りは余白。罫線を引かない（トップページの太罫と対照させる）。
@@ -136,11 +137,13 @@ const communityCount = community.length;
       <p>
         ソフトウェアの設計・開発、業務アプリケーションの内製化支援、AI・LLM
         の組み込みについてのご相談を受け付けています。
-        <a class="doc__link" href="https://x.com/1ye_q" rel="me noopener">X の DM</a>
-        にご連絡ください。作ったものは
-        <a class="doc__link" href="https://github.com/takumi0706" rel="me noopener">GitHub</a>
+        <a class="doc__link" href={formalContact.href} rel={formalContact.rel}>
+          {formalContact.label}
+        </a>
+        からご連絡ください。作ったものは
+        <a class="doc__link" href={github.href} rel={github.rel}>{github.label}</a>
         に、書いたものは
-        <a class="doc__link" href="https://zenn.dev/takumi0706" rel="me noopener">Zenn</a>
+        <a class="doc__link" href={zenn.href} rel={zenn.rel}>{zenn.label}</a>
         にあります。
       </p>
     </div>

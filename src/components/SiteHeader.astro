@@ -9,17 +9,20 @@
 // CTA は1つだけなので、現在地に応じて行き先を変える。
 // 職務経歴書を読んでいる人に職務経歴書へのリンクを出しても行き止まりになる。
 
+import { formalContact } from "@/config/site";
+
 const onResume = Astro.url.pathname.startsWith("/resume");
 
+// 職務経歴書を読んでいる人に向けた CTA は「正式な打診の窓口」に繋ぐ。
 const cta = onResume
-  ? { label: "連絡する", href: "https://x.com/1ye_q", external: true }
-  : { label: "職務経歴書", href: "/resume/", external: false };
+  ? { label: "連絡する", href: formalContact.href, rel: formalContact.rel }
+  : { label: "職務経歴書", href: "/resume/", rel: undefined };
 ---
 
 <header class="nav-edge">
   <div class="shell nav-edge__inner">
     <a class="wordmark" href="/">takumi0706</a>
-    <a class="nav-cta" href={cta.href} rel={cta.external ? "me noopener" : undefined}>
+    <a class="nav-cta" href={cta.href} rel={cta.rel}>
       {cta.label}<span aria-hidden="true">→</span>
     </a>
   </div>

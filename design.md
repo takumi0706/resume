@@ -61,6 +61,21 @@
 捨てることになり、ブラウザが「preload したのに使われていない」と警告を出す。
 そういうページは `preloadDisplayWeight={false}` を渡す。
 
+## 連絡先の出し分け
+
+**一律にしない。相手が居る場所が違う。** 定義は `src/config/site.ts`。
+
+| 場所 | 窓口 | 理由 |
+|---|---|---|
+| `/resume/` の連絡先・ナビ CTA | `formalContact`（LinkedIn 予定） | 採用担当は LinkedIn に常時ログインしている。正式な打診に向く |
+| `/community/` の締め | `communityContact`（X） | カンファレンス運営者は LinkedIn に居ない。ここを LinkedIn にすると誰からも声がかからない |
+| フッター | `elsewhere` に全部並べる | 目次なので網羅する |
+
+**LinkedIn はログアウト状態だと認証壁（`/authwall`）に飛ぶ。** 採用担当には影響
+しないが、それ以外の読者には壁になる。だから一律にしてはいけない。
+
+URL は必ず `src/config/site.ts` から参照する。ページに直書きしない。
+
 ## 文字サイズの下限
 
 `--text-xs` (10.24px) は使わない。規約の絶対下限ぎりぎりで実用に耐えない。

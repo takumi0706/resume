@@ -27,6 +27,15 @@ const t = ui[locale];
       <h1 class="notfound__title">{t.notFoundHeading}</h1>
       <p class="notfound__lede">{t.notFoundLede}</p>
 
+      {/* 静的サイトなので 404 は1枚しか置けず、URL で言語を出し分けられない。
+          /en/ 配下の存在しないパスを踏んだ英語の読者にも行き先を渡すため、
+          英語を1行だけ併記する。 */}
+      <p class="notfound__lede notfound__lede--en" lang="en">
+        {/* 改行を挟むと JSX が空白を落として exist.English とくっつく。 */}
+        This page does not exist.{" "}
+        <a class="notfound__link" href="/en/">English home →</a>
+      </p>
+
       <ul class="notfound__list">
         {
           sections.map((section) => (
@@ -68,6 +77,11 @@ const t = ui[locale];
     max-inline-size: var(--measure-ja);
     color: var(--color-ink-2);
     margin-block-end: var(--space-lg);
+  }
+
+  /* 英語を併記するときは、2つの lede が離れて別の段落に見えないよう詰める。 */
+  .notfound__lede:has(+ .notfound__lede--en) {
+    margin-block-end: var(--space-2xs);
   }
 
   .notfound__list {

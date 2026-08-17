@@ -23,8 +23,18 @@ const isCurrent = (href: string): boolean => {
 
 <nav class="rail" aria-label="サイト内">
   <div class="rail__inner">
-    <a class="rail__wordmark" href="/" aria-current={isCurrent("/") ? "page" : undefined}>
-      takumi0706
+    <a class="rail__brand" href="/" aria-current={isCurrent("/") ? "page" : undefined}>
+      {/* リンクのテキストが名前を伝えるので、画像は装飾扱いにして alt を空にする。
+          幅と高さを明示して読み込み時のずれを防ぐ。 */}
+      <img
+        class="rail__avatar"
+        src="/avatar.png"
+        alt=""
+        width="40"
+        height="40"
+        decoding="async"
+      />
+      <span class="rail__wordmark">takumi0706</span>
     </a>
 
     <ul class="rail__list">
@@ -61,9 +71,37 @@ const isCurrent = (href: string): boolean => {
     padding: var(--space-lg) var(--space-md) var(--space-lg) var(--page-gutter);
   }
 
+  /* Marquee Hero は「フォールドに画像を置かない」形なので、
+     本人のアイコンはヒーローではなくクローム側に置く。
+     全ページに出るため、文字だけのページに視覚的な取っかかりができる。 */
+  .rail__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  /* 60rem 以上ではレールが狭いので縦に積む。
+     横並びだとアバター40px + ワードマークがレール幅(8.5rem)を超え、
+     本文の見出しに重なる。 */
+  @media (width >= 60rem) {
+    .rail__brand {
+      flex-direction: column;
+      align-items: start;
+      gap: var(--space-2xs);
+    }
+  }
+
+  .rail__avatar {
+    inline-size: 40px;
+    block-size: 40px;
+    border-radius: var(--radius-sm);
+    /* ピクセルアートなので拡大縮小で滑らかにしない。 */
+    image-rendering: pixelated;
+  }
+
   .rail__wordmark {
     font-family: var(--font-outlier);
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
     font-weight: 500;
     letter-spacing: -0.01em;
     white-space: nowrap;

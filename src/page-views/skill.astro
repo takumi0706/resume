@@ -146,8 +146,12 @@ const totalEvidence = skills.reduce((sum, skill) => sum + skill.data.usedIn.leng
     margin-block-start: var(--space-2xs);
   }
 
+  /* 実績リストは上から流す。
+   * margin-block-start: auto で下端に寄せていたが、タイルはグリッドの行高に
+   * 引き伸ばされるため、寄せたぶんがそのまま空洞になっていた（Terraform で 206px、
+   * Model Context Protocol で 158px）。タイルの高さは元々揃っていないので、
+   * 下端を揃えても列としては揃わない。空白は下に残す。 */
   .cell__used {
-    margin-block-start: auto;
     padding-block-start: var(--space-sm);
     display: grid;
     gap: var(--space-3xs);

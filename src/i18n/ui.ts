@@ -87,6 +87,21 @@ interface Strings {
   factStack: string;
   factNow: string;
   indexCta: string;
+  /** 継続中の職歴を置く節。3社を並行している事実は帯と行で示し、文で主張しない。 */
+  indexNowHead: string;
+  indexTenureHead: string;
+  /** 帯の凡例。濃淡に意味があることを言わないと読めない。 */
+  indexTenureLegend: string;
+  /** 区分フィルタの legend。視覚的には出さないが、ラジオ群に名前が要る。 */
+  indexFilterLegend: string;
+  indexFilterAll: string;
+  indexColDate: string;
+  indexColKind: string;
+  indexColWhat: string;
+  indexColTech: string;
+  /** 状態のラベル。雇用形態とは別の軸。 */
+  statusOngoing: string;
+  statusUpcoming: string;
 
   /* --- 職務経歴書 -------------------------------------------------------- */
   resumeTitle: string;
@@ -98,7 +113,7 @@ interface Strings {
   factExperience: string;
   /** 「{count}社」/「{count} companies」。 */
   companyCount: string;
-  /** 実務年数の添え書き。 */
+  /** 実務の開始。「{date}から」/ "since {date}"。日付は content から導出する。 */
   experienceSince: string;
   /** 学歴の添え書き。「{faculty} {date}卒業」。 */
   graduated: string;
@@ -214,6 +229,17 @@ const ja: Strings = {
   factStack: "技術",
   factNow: "いま",
   indexCta: "職務経歴書を読む",
+  indexNowHead: "いま",
+  indexTenureHead: "在籍期間",
+  indexTenureLegend: "濃い帯 = 継続中",
+  indexFilterLegend: "区分でしぼる",
+  indexFilterAll: "すべて",
+  indexColDate: "年月",
+  indexColKind: "区分",
+  indexColWhat: "内容",
+  indexColTech: "技術",
+  statusOngoing: "継続中",
+  statusUpcoming: "予定",
 
   resumeTitle: "職務経歴書 — 小山田 卓生",
   resumeDescription:
@@ -224,7 +250,7 @@ const ja: Strings = {
   factEducation: "学歴",
   factExperience: "実務",
   companyCount: "{count}社",
-  experienceSince: "2024年10月から",
+  experienceSince: "{date}から",
   graduated: "{faculty} {date}卒業",
   headWork: "職務経歴",
   headEducation: "学歴",
@@ -338,6 +364,17 @@ const en: Strings = {
   factStack: "Stack",
   factNow: "Next",
   indexCta: "Read the résumé",
+  indexNowHead: "Now",
+  indexTenureHead: "Tenure",
+  indexTenureLegend: "Solid bar = ongoing",
+  indexFilterLegend: "Filter by kind",
+  indexFilterAll: "All",
+  indexColDate: "Date",
+  indexColKind: "Kind",
+  indexColWhat: "Item",
+  indexColTech: "Stack",
+  statusOngoing: "Ongoing",
+  statusUpcoming: "Upcoming",
 
   resumeTitle: "Résumé — Takumi Oyamada",
   resumeDescription:
@@ -348,7 +385,7 @@ const en: Strings = {
   factEducation: "Education",
   factExperience: "Experience",
   companyCount: "{count} companies",
-  experienceSince: "since October 2024",
+  experienceSince: "since {date}",
   graduated: "{faculty}, graduated {date}",
   headWork: "Experience",
   headEducation: "Education",

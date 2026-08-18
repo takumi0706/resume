@@ -94,10 +94,16 @@ if (latestSchool) {
   });
 }
 
+// 開始月は content から引く。直書きすると社数と食い違う。
+// 実際「5社」に KDI(2024-04) を数えながら「2024年10月から」と書いていた。
+const firstStart = work
+  .map((entry) => entry.data.start)
+  .reduce((earliest, start) => (start < earliest ? start : earliest));
+
 profile.push({
   key: t.factExperience,
   value: fill(t.companyCount, { count: work.length }),
-  sub: t.experienceSince,
+  sub: fill(t.experienceSince, { date: yearMonth(locale, firstStart) }),
   tnum: true,
 });
 ---

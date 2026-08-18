@@ -53,6 +53,19 @@ export function fullDate(locale: Locale, value: string): string {
   return `${Number(day)} ${monthNames[index] ?? month} ${year}`;
 }
 
+/**
+ * `2026-02` → 「2026年2月」/ "Feb 2026"。目録の行頭に置く短い形。
+ *
+ * yearMonth は月名を綴るので、英語では "September 2025" が14字になる。
+ * 幅の決まった列の行頭に置くと折り返す（gate 49）。shortDate と同じ3字略記にする。
+ */
+export function shortYearMonth(locale: Locale, value: string): string {
+  const [year, month] = value.split("-");
+  const index = Number(month) - 1;
+  if (locale === "ja") return `${year}年${Number(month)}月`;
+  return `${(monthNames[index] ?? month).slice(0, 3)} ${year}`;
+}
+
 /** `2026-02-11` → 「2/11」/ "Feb 11"。目録の行頭に置く短い形。 */
 export function shortDate(locale: Locale, value: string): string {
   const [, month, day] = value.split("-");

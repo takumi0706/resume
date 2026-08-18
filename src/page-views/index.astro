@@ -1,28 +1,56 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import Base from "@layouts/Base.astro";
 import Chip from "@components/Chip.astro";
-import Facts from "@components/Facts.astro";
-import type { Fact } from "@components/Facts.astro";
 import { splitLocale, localePath } from "@i18n/config";
-import { ui } from "@i18n/ui";
+import { ui, fill } from "@i18n/ui";
+import type { Employment } from "@i18n/ui";
 import { englishName } from "@i18n/names";
-import { fullDate } from "@i18n/format";
+import { yearMonth, shortYearMonth, period as formatPeriod, cjkLang } from "@i18n/format";
 import { loadTranslations } from "@i18n/content";
 
 // 事実は src/content/ 以下のコンテンツファイルが単一の情報源。
 // このファイルには経歴データを直書きしない。
+//
+// このページは「スキャンする場所」。/resume/ は「通しで読む場所」。
+// 同じ事実が両方に出るが、読み方が違うので役割は分かれる。
+//
+// 記録は柱ごとに束ねず、一本の時系列に混ぜる。
+// 「サーバーサイドを書きながらコミュニティを運営する」は spec 3.3 の訴求の核だが、
+// 標語としてトップに出すことは design.md「看板に思想を書かない」が禁じている。
+// 主張せず、継続中の職歴を先頭に置き在籍期間を帯で重ねる。読者が自分で読み取る。
+//
+// このページはクライアント JS を持たない。開閉は <details>、区分の絞り込みは
+// ラジオと :has() で行う。振る舞いのために JS を持ち込むと、
+// 静的サイトである利点（初期表示・JS 無効時・クローラ）を落とす。
 
-interface IndexRow {
-  year: string;
-  what: string;
-  href: string | null;
-  role: string;
+type Kind = "work" | "oss" | "community" | "award";
+type Rendered = Awaited<ReturnType<typeof render>>["Content"];
+
+interface Bar {
+  label: string;
+  left: number;
+  width: number;
+  ongoing: boolean;
 }
 
-interface IndexGroup {
-  group: string;
-  rows: IndexRow[];
+interface Tick {
+  label: string;
+  left: number;
+}
+
+interface RecordRow {
+  /** 並び替えのキー。YYYY-MM は YYYY-MM-00 に伸ばして日付と辞書順で混ぜる。 */
+  sort: string;
+  date: string;
+  kind: Kind;
+  kindLabel: string;
+  title: string;
+  tags: string[];
+  stack: string;
+  meta: string[];
+  href: string | null;
+  Content: Rendered | null;
 }
 
 const { locale } = splitLocale(Astro.url.pathname);
@@ -30,110 +58,247 @@ const t = ui[locale];
 const tr = await loadTranslations(locale);
 
 const byDescending = (a: string, b: string): number => b.localeCompare(a);
-const yearOf = (date: string): string => date.slice(0, 4);
+const byAscending = (a: string, b: string): number => a.localeCompare(b);
 
-const community = await getCollection("community");
-const oss = await getCollection("oss");
 const work = await getCollection("work");
+const oss = await getCollection("oss");
+const community = await getCollection("community");
 const awards = await getCollection("awards");
 
-// 群の並びはレール（src/config/site.ts の sections）と揃える。
-// 同じページ内に順序が2つあると、どちらが優先なのか読み手に伝わらない。
-const groups: IndexGroup[] = [
-  {
-    group: t.groupWork,
-    rows: work
-      .sort((a, b) => byDescending(a.data.start, b.data.start))
-      .map((entry) => ({
-        year: yearOf(entry.data.start),
-        what: locale === "ja" ? entry.data.company : englishName(entry.data.company),
-        href: entry.data.companyUrl ?? null,
-        role: tr.data("work", entry.id).title ?? entry.data.title,
-      })),
-  },
-  {
-    group: t.groupOss,
-    rows: oss
-      .sort((a, b) => byDescending(a.data.released, b.data.released))
-      .map((entry) => ({
-        year: yearOf(entry.data.released),
-        what: entry.data.name,
-        href: entry.data.url,
-        role:
-          entry.data.stars === undefined
-            ? t.ossRole[entry.data.role]
-            : `${t.ossRole[entry.data.role]} · ${entry.data.stars}★`,
-      })),
-  },
-  {
-    group: t.groupCommunity,
-    rows: community
-      .sort((a, b) => byDescending(a.data.date, b.data.date))
-      .map((entry) => ({
-        year: yearOf(entry.data.date),
-        what: entry.data.event,
-        href: entry.data.url ?? null,
-        role: t.communityRole[entry.data.role],
-      })),
-  },
-  {
-    group: t.groupAwards,
-    rows: awards
-      .sort((a, b) => byDescending(a.data.date, b.data.date))
-      .map((entry) => ({
-        year: yearOf(entry.data.date),
-        what: tr.data("awards", entry.id).event ?? entry.data.event,
-        href: entry.data.url ?? null,
-        role: tr.data("awards", entry.id).award ?? entry.data.award,
-      })),
-  },
-];
+/* --- いま ---------------------------------------------------------------
+ * end が null のものが継続中。正社員 → 業務委託 → インターンの順に置く。
+ * これは採用担当が読む順で、site.ts のレールの並びと同じ理由づけ。
+ * 雇用形態とリモートを必ず出す。副業の発注者にとってはこれが判断材料そのもので、
+ * 落とすと「LINEヤフーの正社員」しか見えず、頼める相手だと認識されない。 */
+const employmentOrder: Record<Employment, number> = {
+  fulltime: 0,
+  contract: 1,
+  parttime: 2,
+  intern: 3,
+};
 
-// 現在地の定義リストで参照する現職と直近のカンファレンス。
-const current = work.find((entry) => entry.data.end === null && entry.data.employment === "fulltime");
-const upcoming = community
+const nowCards = work
+  .filter((entry) => entry.data.end === null)
+  .sort((a, b) => {
+    // 形態が同じなら新しく始めた方を先に置く。
+    // 業務委託が複数あるとき、コレクションの読み込み順（ファイル名順）で
+    // 決まってしまうと、並びに理由が無くなる。
+    const byEmployment =
+      employmentOrder[a.data.employment] - employmentOrder[b.data.employment];
+    return byEmployment !== 0 ? byEmployment : byDescending(a.data.start, b.data.start);
+  })
+  .map((entry) => {
+    const overlay = tr.data("work", entry.id);
+    const tags = [t.employment[entry.data.employment]];
+    if (entry.data.remote) {
+      tags.push(t.remote);
+    }
+    return {
+      name: locale === "ja" ? entry.data.company : englishName(entry.data.company),
+      role: overlay.title ?? entry.data.title,
+      tags,
+      period: formatPeriod(locale, entry.data.start, entry.data.end, t.present),
+      summary: overlay.summary ?? entry.data.summary ?? "",
+      stack: entry.data.stack.join(" · "),
+    };
+  });
+
+/* --- 在籍期間 -----------------------------------------------------------
+ * 月を単位に位置を出す。最も古い開始月を左端、ビルド時点の月を右端に置く。
+ * 継続中が重なって見えることが、この節の唯一の主張。
+ * 終了したものを薄くしすぎると「2024年から途切れていない」が読めなくなるので、
+ * トラック / 終了 / 継続中で明度を三段に分ける。 */
+const monthIndex = (value: string): number => {
+  const parts = value.split("-");
+  return Number(parts[0]) * 12 + Number(parts[1]);
+};
+
+const buildDate = new Date();
+const nowMonth = buildDate.getFullYear() * 12 + (buildDate.getMonth() + 1);
+const today = [
+  String(buildDate.getFullYear()),
+  String(buildDate.getMonth() + 1).padStart(2, "0"),
+  String(buildDate.getDate()).padStart(2, "0"),
+].join("-");
+
+const spanStart = Math.min(...work.map((entry) => monthIndex(entry.data.start)));
+const spanEnd = Math.max(
+  nowMonth,
+  ...work.map((entry) => (entry.data.end === null ? nowMonth : monthIndex(entry.data.end))),
+);
+const span = spanEnd - spanStart + 1;
+const ratio = (months: number): number => (months / span) * 100;
+
+const bars: Bar[] = work
   .slice()
-  .sort((a, b) => byDescending(a.data.date, b.data.date))
-  .at(0);
-
-const facts: Fact[] = [];
-
-if (current) {
-  const overlay = tr.data("work", current.id);
-  facts.push({
-    key: t.factCurrentRole,
-    value: locale === "ja" ? current.data.company : englishName(current.data.company),
-    sub: overlay.title ?? current.data.title,
+  .sort((a, b) => byAscending(a.data.start, b.data.start))
+  .map((entry) => {
+    const from = monthIndex(entry.data.start);
+    const to = entry.data.end === null ? nowMonth : monthIndex(entry.data.end);
+    return {
+      label: locale === "ja" ? entry.data.company : englishName(entry.data.company),
+      left: ratio(from - spanStart),
+      width: ratio(to - from + 1),
+      ongoing: entry.data.end === null,
+    };
   });
-  const summary = overlay.summary ?? current.data.summary;
-  if (summary) {
-    facts.push({ key: t.factDuty, value: summary });
-  }
-  if (current.data.stack.length > 0) {
-    facts.push({ key: t.factStack, value: current.data.stack.join(" · ") });
-  }
-}
 
-if (upcoming) {
-  const venue =
-    upcoming.data.venue === undefined
-      ? undefined
-      : locale === "ja"
-        ? upcoming.data.venue
-        : englishName(upcoming.data.venue);
-  facts.push({
-    key: t.factNow,
-    value: `${upcoming.data.event} ${t.communityRole[upcoming.data.role]}`,
-    sub: [fullDate(locale, upcoming.data.date), venue].filter(Boolean).join(" · "),
-    tnum: true,
+// 年の目盛り。最初の年だけは 1 月ではなく帯の左端に寄せる（4 月始まりのため）。
+const ticks: Tick[] = [];
+for (
+  let year = Math.floor((spanStart - 1) / 12);
+  year <= Math.floor((spanEnd - 1) / 12);
+  year += 1
+) {
+  ticks.push({
+    label: String(year),
+    left: ratio(Math.max(year * 12 + 1, spanStart) - spanStart),
   });
 }
+
+/* --- 記録 ---------------------------------------------------------------
+ * 本文は日本語版と英語版で差し替える。英語ページに和文の本文は出さない。 */
+const workRows = await Promise.all(
+  work.map(async (entry): Promise<RecordRow> => {
+    const overlay = tr.entry("work", entry.id);
+    const source = locale === "ja" ? entry : overlay;
+    const body = (source?.body ?? "").trim();
+    const company = locale === "ja" ? entry.data.company : englishName(entry.data.company);
+    const tags: string[] = [];
+    if (entry.data.end === null) {
+      tags.push(t.statusOngoing);
+    }
+    tags.push(t.employment[entry.data.employment]);
+    if (entry.data.remote) {
+      tags.push(t.remote);
+    }
+    return {
+      sort: `${entry.data.start}-00`,
+      date: entry.data.start,
+      kind: "work",
+      kindLabel: t.groupWork,
+      title: `${company} — ${tr.data("work", entry.id).title ?? entry.data.title}`,
+      tags,
+      stack: entry.data.stack.join(" · "),
+      meta: [formatPeriod(locale, entry.data.start, entry.data.end, t.present)],
+      href: entry.data.companyUrl ?? null,
+      Content: source && body.length > 0 ? (await render(source)).Content : null,
+    };
+  }),
+);
+
+const ossRows = await Promise.all(
+  oss.map(async (entry): Promise<RecordRow> => {
+    const overlay = tr.entry("oss", entry.id);
+    const source = locale === "ja" ? entry : overlay;
+    const body = (source?.body ?? "").trim();
+    const tags = [t.ossRole[entry.data.role]];
+    const meta: string[] = [];
+    if (entry.data.stars !== undefined) {
+      tags.push(`${entry.data.stars}★`);
+      // star / fork は変動する。いつ時点の数字かを必ず添える（content.config.ts）。
+      const counts = [`${entry.data.stars}★`];
+      if (entry.data.forks !== undefined) {
+        counts.push(`${entry.data.forks} fork`);
+      }
+      meta.push(
+        entry.data.metricsAsOf === undefined
+          ? counts.join(" / ")
+          : `${counts.join(" / ")} · ${fill(t.asOf, { date: yearMonth(locale, entry.data.metricsAsOf) })}`,
+      );
+    }
+    return {
+      sort: `${entry.data.released}-00`,
+      date: entry.data.released,
+      kind: "oss",
+      kindLabel: t.groupOss,
+      title: entry.data.name,
+      tags,
+      stack: entry.data.stack.join(" · "),
+      meta,
+      href: entry.data.url,
+      Content: source && body.length > 0 ? (await render(source)).Content : null,
+    };
+  }),
+);
+
+const communityRows = await Promise.all(
+  community.map(async (entry): Promise<RecordRow> => {
+    const overlay = tr.entry("community", entry.id);
+    const source = locale === "ja" ? entry : overlay;
+    const body = (source?.body ?? "").trim();
+    const tags = [t.communityRole[entry.data.role]];
+    // 未開催のものが時系列の先頭に来る。ラベルを付けないと経歴と読まれる。
+    if (entry.data.date > today) {
+      tags.unshift(t.statusUpcoming);
+    }
+    const venue =
+      entry.data.venue === undefined
+        ? null
+        : locale === "ja"
+          ? entry.data.venue
+          : englishName(entry.data.venue);
+    return {
+      sort: entry.data.date,
+      date: entry.data.date.slice(0, 7),
+      kind: "community",
+      kindLabel: t.groupCommunity,
+      title: entry.data.event,
+      tags,
+      stack: "",
+      meta: venue === null ? [] : [venue],
+      href: entry.data.url ?? null,
+      Content: source && body.length > 0 ? (await render(source)).Content : null,
+    };
+  }),
+);
+
+const awardRows = await Promise.all(
+  awards.map(async (entry): Promise<RecordRow> => {
+    const overlay = tr.entry("awards", entry.id);
+    const source = locale === "ja" ? entry : overlay;
+    const body = (source?.body ?? "").trim();
+    const data = tr.data("awards", entry.id);
+    // 作品名とチーム名にも訳がある（src/content/en/awards/）。
+    // 訳を引かずに lang="ja" で逃げると、英語の読者には読めないままになる。
+    const meta: string[] = [];
+    if (entry.data.work !== undefined) {
+      meta.push(data.work ?? entry.data.work);
+    }
+    if (entry.data.team !== undefined) {
+      meta.push(data.team ?? entry.data.team);
+    }
+    return {
+      sort: entry.data.date,
+      date: entry.data.date.slice(0, 7),
+      kind: "award",
+      kindLabel: t.groupAwards,
+      title: `${data.event ?? entry.data.event} — ${data.award ?? entry.data.award}`,
+      tags: [],
+      stack: "",
+      meta,
+      href: entry.data.url ?? null,
+      Content: source && body.length > 0 ? (await render(source)).Content : null,
+    };
+  }),
+);
+
+const records = [...workRows, ...ossRows, ...communityRows, ...awardRows].sort((a, b) =>
+  byDescending(a.sort, b.sort),
+);
+
+const filters: { key: string; label: string; count: number }[] = [
+  { key: "all", label: t.indexFilterAll, count: records.length },
+  { key: "work", label: t.groupWork, count: workRows.length },
+  { key: "oss", label: t.groupOss, count: ossRows.length },
+  { key: "community", label: t.groupCommunity, count: communityRows.length },
+  { key: "award", label: t.groupAwards, count: awardRows.length },
+];
 ---
 
 <Base title={t.indexTitle} description={t.indexDescription}>
   {/* H1 · Marquee — knobs: size=xxl, alignment=left-bias, underlay=rule-below
-      Marquee Hero は本来サブヘッドを置かない形だが、個人サイトの看板として
-      名前と読みの2行を出す。ハンドルはレールに出ているので重ねない。 */}
+      看板は名前と読みだけ。思想を一文で書こうとして2度失敗している（design.md）。 */}
   <section class="hero">
     <div class="shell">
       <h1 class="hero__display">{t.nameLatin}</h1>
@@ -143,57 +308,165 @@ if (upcoming) {
 
   <div class="shell"><hr class="rule-thick" /></div>
 
-  {/* 現在地。散文ではなく定義リストで置く。
-      同じ事実を文章にすると読まないと分からなくなる。1行1事実にする。 */}
+  {/* いま。継続中の職歴を並べ、下に在籍期間の帯を重ねる。 */}
   <section class="now">
     <div class="shell">
-      <Facts facts={facts} />
-    </div>
-  </section>
+      <h2 class="section-head">{t.indexNowHead}</h2>
 
-  {/* S2 · Hanging + F3 · Tabular spec sheet
-      knobs: columns=3, rules=every-row, numbers=tabular */}
-  <section class="index">
-    <div class="shell">
-      <h2 class="index__heading">{t.indexRecordHead}</h2>
-      <table class="index__table tnum">
-        <caption class="visually-hidden">{t.indexTableCaption}</caption>
-        <colgroup>
-          <col class="index__col-year" />
-          <col class="index__col-what" />
-          <col class="index__col-role" />
-        </colgroup>
+      <div class="cards">
         {
-          groups.map((section) => (
-            <tbody class="index__group">
-              <tr class="index__group-head">
-                <th class="index__group-label" colspan="3" scope="colgroup">
-                  {section.group}
-                </th>
-              </tr>
-              {section.rows.map((row) => (
-                <tr class="index__row">
-                  <td class="index__year">{row.year}</td>
-                  <td class="index__what">
-                    {row.href ? (
-                      <a class="index__link" href={row.href} rel="noopener">
-                        {row.what}
-                      </a>
-                    ) : (
-                      row.what
-                    )}
-                  </td>
-                  <td class="index__role">{row.role}</td>
-                </tr>
-              ))}
-            </tbody>
+          nowCards.map((card) => (
+            <article class="card">
+              <h3 class="card__name" lang={cjkLang(locale, card.name)}>
+                {card.name}
+              </h3>
+              <p class="card__role">{card.role}</p>
+              <p class="tags">
+                {card.tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </p>
+              <p class="card__period tnum">{card.period}</p>
+              {card.summary && <p class="card__summary">{card.summary}</p>}
+              {card.stack && <p class="card__stack">{card.stack}</p>}
+            </article>
           ))
         }
-      </table>
+      </div>
+
+      <figure class="tenure">
+        <figcaption class="tenure__caption">
+          <span class="tenure__title">{t.indexTenureHead}</span>
+          <span class="tenure__legend">{t.indexTenureLegend}</span>
+        </figcaption>
+        {
+          bars.map((bar) => (
+            <div class="tenure__row">
+              <span class="tenure__label" lang={cjkLang(locale, bar.label)}>
+                {bar.label}
+              </span>
+              <span class="tenure__track">
+                <span
+                  class:list={["tenure__bar", bar.ongoing && "tenure__bar--ongoing"]}
+                  style={`left:${bar.left}%;inline-size:${bar.width}%`}
+                />
+              </span>
+            </div>
+          ))
+        }
+        <div class="tenure__axis" aria-hidden="true">
+          <span class="tenure__ticks tnum">
+            {ticks.map((tick) => <span class="tenure__tick" style={`left:${tick.left}%`}>{tick.label}</span>)}
+            <span class="tenure__tick tenure__tick--end">{t.present}</span>
+          </span>
+        </div>
+      </figure>
     </div>
   </section>
 
-  {/* CTA の見た目は Chip コンポーネントに集約している（design.md の CTA voice）。 */}
+  {/* 記録。柱で束ねず一本の時系列にする。開閉は <details>、絞り込みは :has()。 */}
+  <section class="records">
+    <div class="shell">
+      <h2 class="section-head">{t.indexRecordHead}</h2>
+
+      <fieldset class="filter">
+        <legend class="visually-hidden">{t.indexFilterLegend}</legend>
+        {
+          filters.map((item) => (
+            <>
+              <input
+                class="filter__input visually-hidden"
+                type="radio"
+                name="kind"
+                id={`kind-${item.key}`}
+                checked={item.key === "all"}
+              />
+              <label class="filter__chip" for={`kind-${item.key}`}>
+                <span>{item.label}</span>
+                <span class="filter__count tnum">{item.count}</span>
+              </label>
+            </>
+          ))
+        }
+      </fieldset>
+
+      <div class="ledger">
+        <div class="ledger__head" aria-hidden="true">
+          <span>{t.indexColDate}</span>
+          <span>{t.indexColKind}</span>
+          <span>{t.indexColWhat}</span>
+          <span>{t.indexColTech}</span>
+          <span></span>
+        </div>
+
+        {
+          records.map((row) => {
+            const expandable = row.Content !== null || row.href !== null;
+            const inner = (
+              <>
+                <span class="rec__date tnum">{shortYearMonth(locale, row.date)}</span>
+                <span class="rec__kind">{row.kindLabel}</span>
+                <span class="rec__what">
+                  <span class="rec__title" lang={cjkLang(locale, row.title)}>
+                    {row.title}
+                  </span>
+                  {row.tags.length > 0 && (
+                    <span class="tags">
+                      {row.tags.map((tag) => (
+                        <span
+                          class:list={[
+                            "tag",
+                            (tag === t.statusOngoing || tag === t.statusUpcoming) && "tag--strong",
+                          ]}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </span>
+                <span class="rec__stack">{row.stack}</span>
+              </>
+            );
+            return expandable ? (
+              <details class="rec" data-kind={row.kind}>
+                <summary class="rec__summary">
+                  {inner}
+                  <span class="rec__caret" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 6.5 L8 10.5 L12 6.5" />
+                    </svg>
+                  </span>
+                </summary>
+                <div class="rec__detail">
+                  {row.Content && (
+                    <div class="rec__prose">
+                      <row.Content />
+                    </div>
+                  )}
+                  <p class="rec__meta">
+                    {row.meta.map((item) => <span lang={cjkLang(locale, item)}>{item}</span>)}
+                    {row.href && (
+                      <a class="rec__link" href={row.href} rel="noopener">
+                        {row.href.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </a>
+                    )}
+                  </p>
+                </div>
+              </details>
+            ) : (
+              <div class="rec rec--flat" data-kind={row.kind}>
+                <div class="rec__summary">{inner}</div>
+              </div>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* CTA の見た目は Chip コンポーネントに集約している（design.md の CTA voice）。
+      ここは通し読みへの導線。スキャンで足りた人はそのまま連絡に進む。 */}
   <section class="close">
     <div class="shell">
       <Chip href={localePath(locale, "/resume/")} label={t.indexCta} />
@@ -213,17 +486,12 @@ if (upcoming) {
 
   /* --- hero -------------------------------------------------------------
    * gate 44a は「下パディングを上の1.3倍以上に」とするが、ここでは従わない。
-   * あの規則は eyebrow・見出し・リード文・CTA が積まれた背の高いヒーロー向けで、
-   * 「次のセクションへ引き込む」ことが目的。
    * このヒーローは一行だけで、直後に太罫がある。罫線がすでに引き込みを
    * 担っているので、余白で二重にやると見出しと罫線の間が空いて見える。 */
   .hero {
     padding-block: var(--space-lg) var(--space-md);
   }
 
-  /* --text-display（最大84px）は使わない。このサイトは情報密度が高く行間も締まって
-     いるので、84px の見出しは浮く。和文で一度やって「デカい」と言われ、欧文に
-     変えたときに同じ数値へ戻して同じ指摘を受けた。上限そのものが合っていない。 */
   .hero__display {
     font-size: var(--text-display-s);
     font-weight: 600;
@@ -231,101 +499,374 @@ if (upcoming) {
     line-height: 1.05;
   }
 
-  /* 欧文表記を 36px に下げたぶん、和文氏名も 25px → 20px に落とす。
-     36:25 では差が足りず、2行が競って見出しが2つあるように読める。 */
   .hero__name {
     font-size: var(--text-md);
     font-weight: 600;
     margin-block-start: var(--space-2xs);
   }
 
-  /* --- now -------------------------------------------------------------- */
-  .now {
-    padding-block: var(--space-lg) var(--space-xl);
-    display: grid;
-  }
-
-  /* --- index ------------------------------------------------------------ */
-  .index {
-    padding-block-end: var(--space-lg);
-  }
-
-  .index__heading {
-    font-size: var(--text-lg);
-    margin-block-end: var(--space-md);
-  }
-
-  .index__table {
-    font-size: var(--text-base);
-    table-layout: fixed;
-    max-inline-size: 46rem;
-  }
-
-  .index__col-year {
-    inline-size: 5rem;
-  }
-
-  .index__col-role {
-    inline-size: 26%;
-  }
-
-  /* 群のラベル。text-transform: uppercase は和文には作用しないため使わない。
-   * 字間と色と大きさだけでラベルとして読ませる。 */
-  .index__group-head th {
+  /* --- 節の見出し ------------------------------------------------------- */
+  .section-head {
     font-size: var(--text-sm);
     font-weight: 500;
     letter-spacing: var(--tracking-label);
-    text-align: start;
-    color: var(--color-muted);
-    padding-block: var(--space-lg) var(--space-2xs);
+    padding-block-end: var(--space-sm);
+    border-block-end: var(--rule-hair) solid var(--color-ink);
   }
 
-  .index__group:first-of-type .index__group-head th {
-    padding-block-start: 0;
+  /* --- いま -------------------------------------------------------------- */
+  .now {
+    padding-block: var(--space-lg) var(--space-xl);
   }
 
-  .index__row {
-    border-block-start: var(--rule-hair) solid var(--color-rule-2);
+  /* 罫線は gap と背景で引く。border を3枚に引くと端が二重になる。 */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--rule-hair);
+    background-color: var(--color-rule-2);
+    border-block-end: var(--rule-hair) solid var(--color-rule-2);
   }
 
-  .index__row td {
-    padding-block: var(--space-xs);
-    vertical-align: baseline;
-    text-align: start;
+  .card {
+    display: grid;
+    gap: var(--space-2xs);
+    align-content: start;
+    padding: var(--space-md) var(--space-md) var(--space-md) 0;
+    background-color: var(--color-paper);
   }
 
-  .index__year {
-    font-family: var(--font-outlier);
-    color: var(--color-muted);
+  .card:not(:first-child) {
+    padding-inline-start: var(--space-md);
+  }
+
+  .card__name {
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  .card__role {
     font-size: var(--text-sm);
+    color: var(--color-ink-2);
   }
 
-  .index__what {
+  .card__period {
+    font-family: var(--font-outlier);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .card__summary {
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+  }
+
+  .card__stack {
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    line-height: var(--leading-tight);
+  }
+
+  /* --- タグ --------------------------------------------------------------
+   * 有彩色を持たないので、強調はインクの反転で作る（tokens.css の方針）。 */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.5em;
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+    color: var(--color-muted);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+
+  .tag--strong {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  /* --- 在籍期間 ---------------------------------------------------------- */
+  .tenure {
+    margin-block-start: var(--space-lg);
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .tenure__caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    justify-content: space-between;
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    padding-block-end: var(--space-3xs);
+  }
+
+  .tenure__row {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  .tenure__label {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+
+  .tenure__track {
+    position: relative;
+    display: block;
+    block-size: 0.75rem;
+    background-color: var(--color-paper-2);
+  }
+
+  /* 終了した在籍。トラックとの差が小さいと「2024年から途切れていない」が読めない。 */
+  .tenure__bar {
+    position: absolute;
+    inset-block: 0;
+    display: block;
+    background-color: var(--color-muted);
+  }
+
+  .tenure__bar--ongoing {
+    background-color: var(--color-ink);
+  }
+
+  .tenure__axis {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .tenure__ticks {
+    position: relative;
+    display: block;
+    grid-column: 2;
+    block-size: 1.25rem;
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .tenure__tick {
+    position: absolute;
+    inset-block-start: 0;
+  }
+
+  .tenure__tick--end {
+    inset-inline-end: 0;
+  }
+
+  /* --- 記録 -------------------------------------------------------------- */
+  .records {
+    padding-block-end: var(--space-lg);
+  }
+
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    border: 0;
+    padding: 0;
+    margin-block: var(--space-md);
+  }
+
+  .filter__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-block-size: 44px;
+    padding-inline: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-short) var(--ease-out),
+      color var(--dur-short) var(--ease-out);
+  }
+
+  .filter__chip:hover {
+    border-color: var(--color-muted);
+    color: var(--color-ink);
+  }
+
+  .filter__count {
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .filter__input:checked + .filter__chip {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  .filter__input:checked + .filter__chip .filter__count {
+    color: var(--color-accent-ink);
+  }
+
+  /* ラジオを visually-hidden にしているので、フォーカスはラベルに描く。 */
+  .filter__input:focus-visible + .filter__chip {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* 区分の絞り込み。JS を使わずに :has() で行う。 */
+  .records:has(#kind-work:checked) .rec:not([data-kind="work"]),
+  .records:has(#kind-oss:checked) .rec:not([data-kind="oss"]),
+  .records:has(#kind-community:checked) .rec:not([data-kind="community"]),
+  .records:has(#kind-award:checked) .rec:not([data-kind="award"]) {
+    display: none;
+  }
+
+  /* 区分の列は 5rem。和文の最長ラベル「オープンソース」7字が --text-xs で
+   * 約 4.5rem。3.5rem では14行中8行が2行に折り返していた（gate 49）。 */
+  .ledger__head,
+  .rec__summary {
+    display: grid;
+    grid-template-columns: 5rem 5rem minmax(0, 1fr) 11rem 1rem;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  .ledger__head {
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-muted);
+    padding-block-end: var(--space-2xs);
+    border-block-end: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .rec {
+    border-block-end: var(--rule-hair) solid var(--color-rule-2);
+  }
+
+  .rec__summary {
+    padding-block: var(--space-xs);
+    min-block-size: 44px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .rec--flat .rec__summary {
+    cursor: default;
+  }
+
+  .rec__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .rec__summary:hover {
+    background-color: var(--color-paper-2);
+  }
+
+  .rec--flat .rec__summary:hover {
+    background-color: transparent;
+  }
+
+  .rec__summary:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+
+  .rec__date {
+    font-family: var(--font-outlier);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .rec__kind {
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .rec__what {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-inline-size: 0;
+  }
+
+  .rec__title {
     font-weight: 500;
   }
 
-  .index__role {
-    color: var(--color-ink-2);
-    font-size: var(--text-sm);
+  .rec__stack {
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    line-height: var(--leading-tight);
   }
 
-  .index__link {
+  .rec__caret {
+    display: inline-flex;
+    color: var(--color-muted);
+    transition: transform var(--dur-short) var(--ease-out);
+  }
+
+  .rec[open] .rec__caret {
+    transform: rotate(180deg);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rec__caret {
+      transition: none;
+    }
+  }
+
+  /* 本文は年月と区分の幅だけ字下げして、どの行に属するかを見えるようにする。 */
+  .rec__detail {
+    padding-inline-start: calc(5rem + 5rem + var(--space-sm) * 2);
+    padding-block: 0 var(--space-md);
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .rec__prose {
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+    max-inline-size: var(--measure-ja);
+  }
+
+  .rec__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    font-family: var(--font-outlier);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .rec__link {
     text-decoration: underline;
     text-decoration-color: var(--color-muted);
-    text-decoration-thickness: 1px;
     text-underline-offset: 0.15em;
-    transition:
-      text-decoration-thickness var(--dur-short) var(--ease-out),
-      text-decoration-color var(--dur-short) var(--ease-out);
+    overflow-wrap: anywhere;
   }
 
-  .index__link:hover {
+  .rec__link:hover {
     text-decoration-thickness: 2px;
     text-decoration-color: var(--color-ink);
-  }
-
-  .index__link:active {
-    color: var(--color-ink-2);
   }
 
   /* --- close ------------------------------------------------------------ */
@@ -333,40 +874,73 @@ if (upcoming) {
     padding-block: var(--space-2xl) 0;
   }
 
-  /* --- 40rem 以下: タイポグラフィのブレークポイント --------------------- */
+  /* --- 60rem 以下: いまを縦に積む --------------------------------------- */
+  @media (width < 60rem) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .card {
+      padding: var(--space-md) 0;
+    }
+
+    .card:not(:first-child) {
+      padding-inline-start: 0;
+    }
+
+    .ledger__head,
+    .rec__summary {
+      grid-template-columns: 5rem 5rem minmax(0, 1fr) 1rem;
+    }
+
+    .ledger__head span:nth-child(4),
+    .rec__stack {
+      display: none;
+    }
+  }
+
+  /* --- 40rem 以下: 行を2段に畳む ---------------------------------------- */
   @media (width < 40rem) {
-    .index__table,
-    .index__col-year,
-    .index__col-role {
-      inline-size: auto;
+    .tenure__row,
+    .tenure__axis {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3xs);
     }
 
-    .index__table {
-      table-layout: auto;
+    .tenure__ticks {
+      grid-column: 1;
     }
 
-    /* 表を行ごとのブロックに畳む。3列を375pxに詰めると役割列が2行になる。 */
-    .index__row {
-      display: grid;
-      grid-template-columns: 4rem minmax(0, 1fr);
-      column-gap: var(--space-sm);
-      padding-block: var(--space-xs);
+    .ledger__head {
+      display: none;
     }
 
-    .index__row td {
-      padding-block: 0;
+    /* 1段目に年月・区分・キャレット、2段目に内容を置く。
+     * .rec__what が全幅を占めるので、明示的に置かないとキャレットが
+     * 自動配置で3段目に落ちる。 */
+    .rec__summary {
+      grid-template-columns: 5rem minmax(0, 1fr) 1rem;
+      row-gap: var(--space-3xs);
     }
 
-    .index__year {
-      grid-row: 1 / span 2;
+    .rec__date {
+      grid-area: 1 / 1;
     }
 
-    .index__role {
-      color: var(--color-muted);
+    .rec__kind {
+      grid-area: 1 / 2;
     }
 
-    .index__group-head th {
-      display: block;
+    .rec__caret {
+      grid-area: 1 / 3;
+    }
+
+    .rec__what {
+      grid-area: 2 / 1 / 3 / -1;
+    }
+
+    .rec__detail {
+      padding-inline-start: 0;
     }
   }
 </style>

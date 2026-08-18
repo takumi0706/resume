@@ -2,7 +2,7 @@
 company: 株式会社メモアカ
 companyUrl: https://corp.memoaca.com/
 title: バックエンドエンジニア
-employment: intern
+employment: contract
 start: "2025-02"
 end: null
 remote: true

@@ -335,10 +335,7 @@ const filters: { key: string; label: string; count: number }[] = [
       </div>
 
       <figure class="tenure">
-        <figcaption class="tenure__caption">
-          <span class="tenure__title">{t.indexTenureHead}</span>
-          <span class="tenure__legend">{t.indexTenureLegend}</span>
-        </figcaption>
+        <figcaption class="tenure__caption">{t.indexTenureHead}</figcaption>
         {
           bars.map((bar) => (
             <div class="tenure__row">
@@ -603,10 +600,6 @@ const filters: { key: string; label: string; count: number }[] = [
   }
 
   .tenure__caption {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
-    justify-content: space-between;
     font-family: var(--font-outlier);
     font-size: var(--text-xs);
     letter-spacing: var(--tracking-label);

@@ -90,8 +90,6 @@ interface Strings {
   /** 継続中の職歴を置く節。3社を並行している事実は帯と行で示し、文で主張しない。 */
   indexNowHead: string;
   indexTenureHead: string;
-  /** 帯の凡例。濃淡に意味があることを言わないと読めない。 */
-  indexTenureLegend: string;
   /** 区分フィルタの legend。視覚的には出さないが、ラジオ群に名前が要る。 */
   indexFilterLegend: string;
   indexFilterAll: string;
@@ -231,7 +229,6 @@ const ja: Strings = {
   indexCta: "職務経歴書を読む",
   indexNowHead: "いま",
   indexTenureHead: "在籍期間",
-  indexTenureLegend: "濃い帯 = 継続中",
   indexFilterLegend: "区分でしぼる",
   indexFilterAll: "すべて",
   indexColDate: "年月",
@@ -366,7 +363,6 @@ const en: Strings = {
   indexCta: "Read the résumé",
   indexNowHead: "Now",
   indexTenureHead: "Tenure",
-  indexTenureLegend: "Solid bar = ongoing",
   indexFilterLegend: "Filter by kind",
   indexFilterAll: "All",
   indexColDate: "Date",

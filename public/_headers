@@ -1,4 +1,30 @@
 # Cloudflare Workers (Static Assets) のヘッダー設定。
+
+# -- セキュリティ ------------------------------------------------------------
+# このサイトはビルド後の HTML に <script> を1つも持たない（クライアント JS ゼロ）。
+# 外部オリジンから読む資源も無い（外部は href のリンクだけで、src は同一オリジン）。
+# だから default-src 'none' を土台にして、要るものだけ開ける形にできる。
+# ここまで締められるのは JS を持ち込まなかったことの見返りなので、
+# 振る舞いのために JS を足すときは、この行も一緒に見直すこと。
+#
+# style だけ 'unsafe-inline' が要る。Astro が小さな CSS をインライン化するのと、
+# 在籍期間の帯が style 属性で位置を持つため。script-src 'none' の下では
+# CSS インジェクションを実害に繋げる経路が無いので、ここは許容する。
+#
+# X-Frame-Options は書かない。frame-ancestors が同じ働きをし、
+# 現代のブラウザはこちらを優先する。二重に持つと食い違ったときに事故る。
+#
+# Cross-Origin-Resource-Policy も書かない。same-origin にすると OGP 画像を
+# SNS のクローラーが取得できなくなり、カードのプレビューが壊れる。
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# -- キャッシュ --------------------------------------------------------------
 # 既定は Cache-Control: public, max-age=0, must-revalidate で、
 # フォントのような不変アセットまで毎回再検証されてしまう。
 
